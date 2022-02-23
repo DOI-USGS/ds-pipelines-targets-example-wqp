@@ -1,0 +1,91 @@
+# characteristicNames: https://www.waterqualitydata.us/Codes/Characteristicname?mimeType=xml
+
+temperature:
+- "Temperature"
+- "Temperature, sample"
+- "Temperature, water"
+- "Temperature, water, deg F"
+
+phosphorus:
+- "Inorganic phosphorus"
+- "Phosphate"
+- "Phosphate-phosphorus"
+- "Phosphate-phosphorus as P"
+- "Phosphate-phosphorus as PO4"
+- "Phosphorus, phosphate (PO4) as orthophosphate"
+- "Soluble Reactive Phosphorus (SRP)"
+- "Polyphosphate"
+- "Phosphorus, hydrolyzable"
+- "Phosphorus, hydrolyzable plus orthophosphate"
+- "Organic phosphorus"
+- "Phosphorus, Particulate Organic"
+- "Phosphorus"
+- "Phosphorus as P"
+- "Total Phosphorus, mixed forms"
+- "Orthophosphate"
+- "Orthophosphate as PO4"
+- "Orthophosphate as P"
+- "Ortho-Phosphate-Phosphorus"
+
+nitrogen:
+- "Inorganic nitrogen (NO2, NO3, & NH3)"
+- "Inorganic nitrogen (ammonia, nitrate and nitrite)"
+- "Kjeldahl nitrogen"
+- "Nitrogen"
+- "Nitrogen Kjeldahl"
+- "Nitrogen ion"
+- "Nitrogen, ammonia (NH3) as NH4"
+- "Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)"
+- "Nutrient-nitrogen"
+- "Organic Nitrogen"
+- "Particulate Organic Nitrogen and Particulate Nitrogen"
+- "Total Kjeldahl nitrogen"
+- "Total Kjeldahl nitrogen (Organic N & NH3)"
+- "Total Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)"
+- "Total Particulate Nitrogen"
+- "Total Nitrogen, mixed forms"
+
+nitrate:
+- "Nitrate"
+- "Nitrate + Nitrite"
+- "Nitrate as N"
+- "Nitrate-N"
+- "Nitrate-Nitrite"
+- "Nitrate-Nitrogen"
+- "Nitrate-nitrogen"
+- "Nitrite"
+- "Nitrite as N"
+- "Inorganic nitrogen (nitrate and nitrite)"
+- "Inorganic nitrogen (nitrate and nitrite) as N"
+- "Nitrite-N"
+
+ammonia:
+- "Ammonia"
+- "Ammonia and ammonium"
+- "Ammonia as NH3"
+- "Ammonia-nitrogen"
+- "Ammonia-nitrogen as N"
+- "Ammonium"
+- "Ammonium as N"
+- "Ammonium as NH4"
+- "Ammonium-Nitrogen"
+- "Ammonium-nitrogen"
+- "Ammonia uptake"
+
+pH:
+- "PH"
+- "pH"
+- "pH, lab"
+
+DO:
+- "Dissolved oxygen"
+- "Dissolved oxygen (DO)"
+- "Dissolved oxygen uptake"
+- "Dissolved oxygen saturation"
+
+conductivity:
+- "Specific conductivity"
+- "Specific conductance"
+- "Specific Conductance, Calculated/Measured Ratio"
+- "Conductivity"
+

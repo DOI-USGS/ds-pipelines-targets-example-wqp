@@ -1,6 +1,17 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+#Targets directry
+_targets
 
-*.Rproj
+#All pipeline output
+*/out/*
+
+#R files
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+.Rproj.user
