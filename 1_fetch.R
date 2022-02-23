@@ -15,7 +15,7 @@ p1_targets_list <- list(
   # Get a vector of WQP characteristicNames to match parameter groups of interest
   tar_target(
     p1_charNames,
-    p1_wqp_params[names(p1_wqp_params) %in% param_groups_select]
+    p1_wqp_params[param_groups_select]
   )
 
 )
