@@ -44,16 +44,6 @@ nitrogen:
 - "Total Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)"
 - "Total Particulate Nitrogen"
 - "Total Nitrogen, mixed forms"
-#- "Kjeldahl nitrogen as N"
-#- "Nitrogen as N"
-#- "Nitrogen, ammonia (NH3) + ammonium (NH4)"
-#- "Nitrogen, Ammonia + Organic"
-#- "Nitrogen, Ammonium (NH4) as N"
-#- "Nitrogen, ammonium (NH4) as NH4"
-#- "Nitrogen, Kjeldahl"
-#- "Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3) as N"
-#- "Nutrient-nitrogen as N"
-#- "Organic Nitrogen as N"
 
 nitrate:
 - "Nitrate"
@@ -68,14 +58,6 @@ nitrate:
 - "Inorganic nitrogen (nitrate and nitrite)"
 - "Inorganic nitrogen (nitrate and nitrite) as N"
 - "Nitrite-N"
-#- "Nitrate as NO2"
-#- "Nitrate as NO3"
-#- "Nitrite as NO2"
-#- "Nitrite as NO3"
-#- "Nitrogen as NO2"
-#- "Nitrogen as NO3"
-#- "Nitrogen, Nitrate (NO3) as NO3"
-#- "Nitrogen, Nitrite (NO2) as NO2"
 
 ammonia:
 - "Ammonia"
@@ -88,10 +70,7 @@ ammonia:
 - "Ammonium as NH4"
 - "Ammonium-Nitrogen"
 - "Ammonium-nitrogen"
-#- "Ammonia as N"
-#- "Ammonia as NH4"
 - "Ammonia uptake"
-#- "Ammonia-nitrogen as NH3"
 
 pH:
 - "PH"
