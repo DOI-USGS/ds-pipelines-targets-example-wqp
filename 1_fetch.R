@@ -1,4 +1,3 @@
-source('scratch/download_file.R')
 
 p1_targets_list <- list(
   
@@ -23,7 +22,8 @@ p1_targets_list <- list(
   # Define the spatial area of interest (AOI) for the WQP data pull
   # This target could also be edited to read in coordinates from a local file
   # that contains the columns 'lon' and 'lat', e.g. replace data.frame() with 
-  # read_csv("1_fetch/in/my_sites.csv")
+  # read_csv("1_fetch/in/my_sites.csv"). See README for an example of how to 
+  # use a shapefile to define the AOI.
   tar_target(
     p1_AOI,
     data.frame(lon = coords_lon,
