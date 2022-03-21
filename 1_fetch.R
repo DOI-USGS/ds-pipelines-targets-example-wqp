@@ -36,6 +36,20 @@ p1_targets_list <- list(
     sf::st_as_sf(p1_AOI,coords=c("lon","lat"),crs=4326) %>%
       summarize(geometry = st_combine(geometry)) %>%
       sf::st_cast("POLYGON")
+  ),
+  
+  # Create a big grid of boxes to set up chunked data queries
+  tar_target(
+    p1_conus_grid,
+    tigris::states(class = "sf", year = 2020, progress_bar = FALSE) %>%
+      # filter state polygons to CONUS extent
+      filter(REGION != "9", 
+             !STUSPS %in% c("HI","AK")) %>%
+      # create square grid with cell sizes equal to 1 deg. x 1 deg.
+      sf::st_make_grid(cellsize = c(1,1), square = TRUE) %>%
+      # convert to sf object and add an "id" attribute
+      sf::st_as_sf() %>%
+      mutate(id = row.names(.))
   )
 
 )
