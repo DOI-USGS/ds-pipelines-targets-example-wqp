@@ -50,6 +50,26 @@ p1_targets_list <- list(
       # convert to sf object and add an "id" attribute
       sf::st_as_sf() %>%
       mutate(id = row.names(.))
+  ),
+  
+  # Use spatial subsetting to find boxes that overlap the area of interest
+  # (buffered here using a 5 km buffer distance). These boxes will be used
+  # to query the WQP.
+  tar_target(
+    p1_boxes_for_query,
+    {
+      # Project area of interest to calculate buffer and set up for intersection
+      buffered_AOI <- p1_AOI_sf %>%
+        sf::st_transform(5070) %>%
+        sf::st_buffer(5000)
+      
+      # Filter the big grid of boxes to only include those that overlap
+      # with the buffered area of interest
+      p1_conus_grid %>%
+        st_transform(5070) %>%
+        sf::st_filter(y = buffered_AOI,
+                      .predicate = st_intersects)
+    }
   )
 
 )
