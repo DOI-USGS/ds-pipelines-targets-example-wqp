@@ -51,19 +51,7 @@ p1_targets_list <- list(
   # to query the WQP.
   tar_target(
     p1_conus_grid_aoi,
-    {
-      # Project area of interest to calculate buffer and set up for intersection
-      buffered_AOI <- p1_AOI_sf %>%
-        sf::st_transform(5070) %>%
-        sf::st_buffer(5000)
-      
-      # Filter the big grid of boxes to only include those that overlap
-      # with the buffered area of interest
-      p1_conus_grid %>%
-        sf::st_transform(5070) %>%
-        sf::st_filter(y = buffered_AOI,
-                      .predicate = st_intersects)
-    }
+    subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, buffer_dist_m = 5000)
   )
 
 )
