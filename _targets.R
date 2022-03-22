@@ -1,7 +1,7 @@
 library(targets)
 
 options(tidyverse.quiet = TRUE)
-tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval', 'sf'))
+tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval', 'sf', 'tigris'))
 
 source("1_fetch.R")
 

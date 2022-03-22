@@ -1,3 +1,5 @@
+# Source the functions that will be used to build the targets in p1_targets_list
+source("1_fetch/src/create_grids.R")
 
 p1_targets_list <- list(
   
@@ -36,6 +38,20 @@ p1_targets_list <- list(
     sf::st_as_sf(p1_AOI,coords=c("lon","lat"),crs=4326) %>%
       summarize(geometry = st_combine(geometry)) %>%
       sf::st_cast("POLYGON")
+  ),
+  
+  # Create a big grid of boxes to set up chunked data queries
+  tar_target(
+    p1_conus_grid,
+    create_conus_grid(cellsize = c(1,1))
+  ),
+  
+  # Use spatial subsetting to find boxes that overlap the area of interest
+  # (i.e., are within dist_m of p1_AOI_sf). These boxes will be used to
+  # query the WQP.
+  tar_target(
+    p1_conus_grid_aoi,
+    subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
   )
 
 )
