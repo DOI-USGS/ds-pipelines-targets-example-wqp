@@ -32,7 +32,7 @@ create_conus_grid <- function(cellsize, year = 2020, progress_bar = FALSE){
 
 
 
-subset_grids_to_aoi <- function(grid, aoi_poly, buffer_dist_m){
+subset_grids_to_aoi <- function(grid, aoi_poly, dist_m){
   #' 
   #' @description Function to spatially subset a holistic grid of boxes
   #' to find the boxes that overlap the area of interest. The area of 
@@ -41,26 +41,20 @@ subset_grids_to_aoi <- function(grid, aoi_poly, buffer_dist_m){
   #' @param grid sf polygon object containing the geometries and an attribute 
   #' id for each box within the grid.
   #' @param aoi_poly sf polygon object representing the area of interest
-  #' @param buffer_dist_m integer; indicates the distance in meters to buffer 
-  #' around the area of interest polygon. See ??sf::st_buffer for further details.
+  #' @param dist_m integer; grid geometries will be returned if distances between
+  #' the grid polygons and the aoi polygon are smaller or equal to this value.
   #' 
   #' @value returns an sf polygon object containing the geometries for each box 
   #' within the holistic grid that overlaps the buffered area of interest.
   #' 
-  #' @example subset_grids_to_aoi(grid = p1_conus_grid, buffer_dist_m = 5000)
+  #' @example subset_grids_to_aoi(grid = p1_conus_grid, dist_m = 5000)
   #' 
   
-  # Project area of interest to calculate buffer and set up for intersection
-  buffered_aoi <- aoi_poly %>%
-    sf::st_transform(5070) %>%
-    sf::st_buffer(5000)
-  
-  # Filter the big grid of boxes to only include those that overlap
-  # with the buffered area of interest
+  # Filter the big grid of boxes to only include those that overlap/are within
+  # a given distance of the area of interest
   grid_subset_aoi <- grid %>%
-    sf::st_transform(5070) %>%
-    sf::st_filter(y = buffered_aoi,
-                  .predicate = st_intersects)  
+    sf::st_filter(y = sf::st_transform(aoi_poly,sf::st_crs(grid)),
+                  .predicate = st_is_within_distance,dist=units::set_units(dist_m, m))   
   
   return(grid_subset_aoi)
   

@@ -47,11 +47,11 @@ p1_targets_list <- list(
   ),
   
   # Use spatial subsetting to find boxes that overlap the area of interest
-  # (buffered here using a 5 km buffer distance). These boxes will be used
-  # to query the WQP.
+  # (i.e., are within dist_m of p1_AOI_sf). These boxes will be used to
+  # query the WQP.
   tar_target(
     p1_conus_grid_aoi,
-    subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, buffer_dist_m = 5000)
+    subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
   )
 
 )
