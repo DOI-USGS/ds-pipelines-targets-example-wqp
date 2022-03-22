@@ -56,7 +56,7 @@ p1_targets_list <- list(
   # (buffered here using a 5 km buffer distance). These boxes will be used
   # to query the WQP.
   tar_target(
-    p1_overlapping_boxes,
+    p1_conus_grid_aoi,
     {
       # Project area of interest to calculate buffer and set up for intersection
       buffered_AOI <- p1_AOI_sf %>%
