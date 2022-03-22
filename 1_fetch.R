@@ -1,3 +1,5 @@
+# Source the functions that will be used to build the targets in p1_targets_list
+source("1_fetch/src/create_conus_grid.R")
 
 p1_targets_list <- list(
   
@@ -41,15 +43,7 @@ p1_targets_list <- list(
   # Create a big grid of boxes to set up chunked data queries
   tar_target(
     p1_conus_grid,
-    tigris::states(class = "sf", year = 2020, progress_bar = FALSE) %>%
-      # filter state polygons to CONUS extent
-      filter(REGION != "9", 
-             !STUSPS %in% c("HI","AK")) %>%
-      # create square grid with cell sizes equal to 1 deg. x 1 deg.
-      sf::st_make_grid(cellsize = c(1,1), square = TRUE) %>%
-      # convert to sf object and add an "id" attribute
-      sf::st_as_sf() %>%
-      mutate(id = row.names(.))
+    create_conus_grid(cellsize = c(1,1))
   ),
   
   # Use spatial subsetting to find boxes that overlap the area of interest
