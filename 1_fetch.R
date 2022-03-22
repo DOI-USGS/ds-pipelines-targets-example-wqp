@@ -1,5 +1,5 @@
 # Source the functions that will be used to build the targets in p1_targets_list
-source("1_fetch/src/create_conus_grid.R")
+source("1_fetch/src/create_grids.R")
 
 p1_targets_list <- list(
   
