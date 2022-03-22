@@ -4,7 +4,8 @@ create_conus_grid <- function(cellsize, year = 2020, progress_bar = FALSE){
   #' data queries
   #' 
   #' @param cellsize the target cell size of each box in map units (here, degrees);
-  #' see ??sf::st_make_grid for further details.
+  #' takes two values indicating the size in the x direction and the size in the 
+  #' y direction, see ??sf::st_make_grid for further details.
   #' @param year integer; year of the state polygon data download (defaults to 2020); 
   #' see ??tigris::states for further details.
   #' @param progress_bar logical; indicates whether a progress bar showing the status
