@@ -1,5 +1,6 @@
 # Source the functions that will be used to build the targets in p1_targets_list
 source("1_fetch/src/create_grids.R")
+source("1_fetch/src/get_wqp_inventory.R")
 
 p1_targets_list <- list(
   
@@ -52,6 +53,17 @@ p1_targets_list <- list(
   tar_target(
     p1_conus_grid_aoi,
     subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
+  ),
+  
+  # Inventory data available from the WQP within the area of interest.
+  # To prevent timeout issues that result from large data requests, use
+  # {targets}' dynamic branching capabilities to map the inventory_wqp()
+  # function over each grid within p1_conus_grid_aoi. {Targets} will
+  # then combine all of the grid-scale inventories into one table when
+  # building p1_wqp_inventory.
+  tar_target(
+    p1_wqp_inventory,
+    inventory_wqp(p1_conus_grid_aoi,"Conductivity", "Stream")
   )
 
 )
