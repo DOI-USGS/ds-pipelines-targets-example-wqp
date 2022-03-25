@@ -64,12 +64,14 @@ p1_targets_list <- list(
   # Inventory data available from the WQP within the area of interest.
   # To prevent timeout issues that result from large data requests, use
   # {targets}' dynamic branching capabilities to map the inventory_wqp()
-  # function over each grid within p1_conus_grid_aoi. {Targets} will
+  # function over each grid within p1_conus_grid_aoi_bbox. {Targets} will
   # then combine all of the grid-scale inventories into one table when
   # building p1_wqp_inventory.
   tar_target(
     p1_wqp_inventory,
-    inventory_wqp(p1_conus_grid_aoi_bbox,"Conductivity", "Stream"),
+    inventory_wqp(p1_conus_grid_aoi_bbox,
+                  unlist(p1_charNames),
+                  "Stream"),
     pattern = map(p1_conus_grid_aoi_bbox)
   )
 
