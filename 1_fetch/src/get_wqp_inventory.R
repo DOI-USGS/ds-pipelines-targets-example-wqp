@@ -13,14 +13,11 @@
 #' 
 #' @value returns a list of sites from the Water Quality Portal
 #' 
-#' @example inventory_wqp(aoi_poly, "Conductivity", "Stream")
-#' @example inventory_wqp(aoi_poly, "Temperature", "Lake, Reservoir, Impoundment")
+#' @example inventory_wqp(aoi_bbox, "Conductivity", "Stream")
+#' @example inventory_wqp(aoi_bbox, "Temperature", "Lake, Reservoir, Impoundment")
 #' 
 
-inventory_wqp <- function(bbox_tbl, char_names, site_type, year_earliest = NULL, year_latest = NULL){
-  
-  # Return bounding box to use for WQP data summary
-  bbox <- bbox_tbl$bbox[[1]]
+inventory_wqp <- function(bbox, char_names, site_type, year_earliest = NULL, year_latest = NULL){
   
   # Inventory available WQP data
   wqp_inventory <- dataRetrieval::readWQPsummary(
