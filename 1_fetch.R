@@ -55,26 +55,18 @@ p1_targets_list <- list(
     subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
   ),
   
-  # Return bounding boxes for grids that overlap the area of interest;
-  # returns an object target of class "list".
-  tar_target(
-    p1_conus_grid_aoi_bbox,
-    return_bbox(p1_conus_grid_aoi),
-    iteration = "list"
-  ),
-  
   # Inventory data available from the WQP within the area of interest.
   # To prevent timeout issues that result from large data requests, use
   # {targets}' dynamic branching capabilities to map the inventory_wqp()
-  # function over each grid within p1_conus_grid_aoi_bbox. {Targets} will
+  # function over each grid within p1_conus_grid_aoi_bbox. {targets} will
   # then combine all of the grid-scale inventories into one table when
   # building p1_wqp_inventory.
   tar_target(
     p1_wqp_inventory,
-    inventory_wqp(bbox = p1_conus_grid_aoi_bbox,
+    inventory_wqp(grid = p1_conus_grid_aoi,
                   char_names = unlist(p1_charNames),
                   site_type = "Stream"),
-    pattern = map(p1_conus_grid_aoi_bbox)
+    pattern = map(p1_conus_grid_aoi)
   )
 
 )

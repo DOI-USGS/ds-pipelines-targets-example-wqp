@@ -2,8 +2,7 @@
 #' 
 #' @description Function to inventory WQP sites and observations within the area of interest
 #' 
-#' @param bbox_tbl data frame containing an attribute id and bounding box for each
-#' box sampled within the area of interest. The column bbox is of class list.
+#' @param grid sf object representing the area over which to query the WQP
 #' @param char_names character string indicating the WQP CharacteristicNames to query
 #' @param site_type character string indicating which water feature type(s) to query
 #' @param year_earliest integer; the earliest year to include in the returned inventory,
@@ -17,7 +16,10 @@
 #' @example inventory_wqp(aoi_bbox, "Temperature", "Lake, Reservoir, Impoundment")
 #' 
 
-inventory_wqp <- function(bbox, char_names, site_type, year_earliest = NULL, year_latest = NULL){
+inventory_wqp <- function(grid, char_names, site_type, year_earliest = NULL, year_latest = NULL){
+  
+  # Get bounding box for the grid polygon
+  bbox <- sf::st_bbox(grid)
   
   # Inventory available WQP data
   wqp_inventory <- dataRetrieval::readWQPsummary(
