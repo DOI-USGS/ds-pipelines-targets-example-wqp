@@ -64,8 +64,9 @@ p1_targets_list <- list(
   tar_target(
     p1_wqp_inventory,
     inventory_wqp(grid = p1_conus_grid_aoi,
-                  char_names = unlist(p1_charNames),
-                  site_type = "Stream"),
+                  char_names = p1_charNames,
+                  sampleMedia = "Water",
+                  siteType = "Stream"),
     pattern = map(p1_conus_grid_aoi)
   )
 
