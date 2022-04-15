@@ -1,5 +1,6 @@
 # Source the functions that will be used to build the targets in p1_targets_list
 source("1_fetch/src/create_grids.R")
+source("1_fetch/src/get_wqp_inventory.R")
 
 p1_targets_list <- list(
   
@@ -52,6 +53,23 @@ p1_targets_list <- list(
   tar_target(
     p1_conus_grid_aoi,
     subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
+  ),
+  
+  # Inventory data available from the WQP within the area of interest. To
+  # prevent timeout issues that result from large data requests, use {targets}
+  # dynamic branching capabilities to map inventory_wqp() over each grid within
+  # p1_conus_grid_aoi_bbox. {targets} will then combine all of the grid-scale 
+  # inventories into one table when building p1_wqp_inventory.
+  tar_target(
+    p1_wqp_inventory,
+    # inventory_wqp() requires grid and char_names as inputs, but users
+    # can also pass additional arguments, e.g. sampleMedia or siteType.
+    # See documentation in 1_fetch/src/get_wqp_inventory.R for details.
+    inventory_wqp(grid = p1_conus_grid_aoi,
+                  char_names = p1_charNames,
+                  sampleMedia = "Water",
+                  siteType = "Stream"),
+    pattern = map(p1_conus_grid_aoi)
   )
 
 )
