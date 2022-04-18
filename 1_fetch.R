@@ -19,7 +19,7 @@ p1_targets_list <- list(
   
   # Get a vector of WQP characteristicNames to match parameter groups of interest
   tar_target(
-    p1_charNames,
+    p1_char_names,
     filter_characteristics(p1_wqp_params, param_groups_select)
   ),
   
@@ -67,7 +67,7 @@ p1_targets_list <- list(
     # can also pass additional arguments, e.g. sampleMedia or siteType.
     # See documentation in 1_fetch/src/get_wqp_inventory.R for details.
     inventory_wqp(grid = p1_conus_grid_aoi,
-                  char_names = p1_charNames,
+                  char_names = p1_char_names,
                   sampleMedia = "Water",
                   siteType = "Stream"),
     pattern = map(p1_conus_grid_aoi)
