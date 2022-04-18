@@ -1,4 +1,5 @@
 # Source the functions that will be used to build the targets in p1_targets_list
+source("1_fetch/src/check_characteristics.R")
 source("1_fetch/src/create_grids.R")
 source("1_fetch/src/get_wqp_inventory.R")
 
@@ -19,7 +20,7 @@ p1_targets_list <- list(
   # Get a vector of WQP characteristicNames to match parameter groups of interest
   tar_target(
     p1_charNames,
-    p1_wqp_params[param_groups_select]
+    filter_characteristics(p1_wqp_params, param_groups_select)
   ),
   
   # Define the spatial area of interest (AOI) for the WQP data pull
