@@ -31,7 +31,7 @@ check_valid_characteristics <- function(chars) {
   chars_exist <- chars %in% all_characteristic_names
   
   if(!all(chars_exist)) {
-    message(sprintf("The following characteristics do not exist in WQP:\n\n%s\n",
+    warning(sprintf("The following characteristics do not exist in WQP:\n\n%s\n",
                     paste(chars[which(!chars_exist)], collapse="\n")))
   }
   
