@@ -23,6 +23,14 @@ p1_targets_list <- list(
     filter_characteristics(p1_wqp_params, param_groups_select)
   ),
   
+  # Save log file containing WQP characteristic names that are similar to the
+  # parameter groups of interest
+  tar_target(
+    p1_similar_char_names_txt,
+    find_similar_characteristics(p1_char_names, param_groups_select, "1_fetch/out"),
+    format = "file"
+  ),
+  
   # Define the spatial area of interest (AOI) for the WQP data pull
   # This target could also be edited to read in coordinates from a local file
   # that contains the columns 'lon' and 'lat', e.g. replace data.frame() with 

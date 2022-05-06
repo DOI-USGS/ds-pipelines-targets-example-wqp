@@ -61,3 +61,50 @@ filter_characteristics <- function(wqp_params, param_groups_select){
   return(characteristics_in_wqp)
 }
 
+
+#' Function to search a list of valid WQP characteristic names and find valid
+#' characteristic names that are similar to the parameters requested.
+#' 
+#' @param characteristics_select character string of desired characteristic names 
+#' identified from the wqp codes cfg file
+#' @param param_groups_select character string indicating what parameter groups 
+#' will be used for the WQP data pull
+#' @param save_dir file path indicating where log files containing similar 
+#' characteristic names should be saved
+#' 
+#' @return saves one .txt file for each parameter in param_groups_select. The saved 
+#' file(s) indicates valid characteristic names in WQP that are similar to that 
+#' parameter, and indicates which entries are already included in the cfg file and
+#' which entries are not. Those entries not already included in the cfg file are 
+#' meant to provide a quick reference for additional characteristic names that 
+#' might warrant further consideration. 
+#' 
+find_similar_characteristics <- function(characteristics_select, param_groups_select, save_dir){
+  
+  # Read in characteristic names from WQP
+  characteristics_all <- read_wqp_characteristics()
+  
+  # For each parameter group, search for approximate string matches
+  # within list of WQP characteristic names
+  matched_characteristics <- lapply(param_groups_select,function(x){
+    
+    message(sprintf("Searching for other WQP characteristics that may belong to parameter: %s",x))
+    
+    matched_chars <- agrep(x, characteristics_all,
+                           value = TRUE, ignore.case = TRUE)
+    matched_chars_selected <- matched_chars[matched_chars %in% characteristics_select]
+    matched_chars_not_selected <- matched_chars[!matched_chars %in% characteristics_select]
+    
+    header_selected <- "The following characteristics are already included in the WQP codes cfg file: "
+    header_not_selected <- "The following characteristics might be relevant to the selected parameter and are not included in the WQP codes cfg file: "
+    out_file <- paste0(save_dir,"/wqp_characteristics_",x,".txt")
+    writeLines(c(header_selected,matched_chars_selected,"\n",
+                 header_not_selected, matched_chars_not_selected),
+               sep = "\n" ,out_file)
+    return(out_file)
+  })
+  
+  return(unlist(matched_characteristics))
+}
+
+
