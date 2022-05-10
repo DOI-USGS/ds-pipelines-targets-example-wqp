@@ -79,6 +79,12 @@ p1_targets_list <- list(
                   char_names = p1_char_names,
                   wqp_args = wqp_args),
     pattern = map(p1_conus_grid_aoi)
+  ),
+  
+  # Subset the WQP inventory to only retain sites within the area of interest
+  tar_target(
+    p1_wqp_inventory_aoi,
+    subset_inventory(p1_wqp_inventory, p1_AOI_sf)
   )
 
 )
