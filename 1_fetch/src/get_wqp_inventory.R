@@ -32,17 +32,19 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL){
                                      characteristicName = x))
     # query WQP
     dataRetrieval::whatWQPdata(wqp_args_all) %>%
-      mutate(CharacteristicName = x)
+      mutate(CharacteristicName = x, grid_id = grid$id)
   }) %>%
     bind_rows()
   
-  # Format WQP inventory 
+  # Fetch missing CRS information from WQP
+  site_location_metadata <- dataRetrieval::whatWQPsites(
+    bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax)) %>%
+    select(MonitoringLocationIdentifier, HorizontalCoordinateReferenceSystemDatumName) %>%
+    filter(MonitoringLocationIdentifier %in% wqp_inventory$MonitoringLocationIdentifier)
+  
+  # Join WQP inventory with site metadata 
   wqp_inventory_out <- wqp_inventory %>%
-    group_by(CharacteristicName) %>%
-    summarize(sites_count = n(),
-              results_count = sum(resultCount)) %>%
-    mutate(grid_id = grid$id) %>%
-    select(grid_id, CharacteristicName, sites_count, results_count)
+    left_join(site_location_metadata, by = "MonitoringLocationIdentifier")
 
   return(wqp_inventory_out)
   
