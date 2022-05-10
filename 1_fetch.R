@@ -76,8 +76,7 @@ p1_targets_list <- list(
     # See documentation in 1_fetch/src/get_wqp_inventory.R for details.
     inventory_wqp(grid = p1_conus_grid_aoi,
                   char_names = p1_char_names,
-                  sampleMedia = "Water",
-                  siteType = "Stream"),
+                  wqp_args = wqp_args),
     pattern = map(p1_conus_grid_aoi)
   )
 

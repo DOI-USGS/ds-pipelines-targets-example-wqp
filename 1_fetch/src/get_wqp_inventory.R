@@ -5,16 +5,16 @@
 #' @param grid sf object representing the area over which to query the WQP
 #' @param char_names character string or list of character strings indicating the 
 #' WQP CharacteristicNames to query
-#' @param ... see  https://www.waterqualitydata.us/webservices_documentation for more 
-#' information on the options accepted by dataRetrieval::whatWQPdata().
+#' @param wqp_args list containing additional arguments to pass to dataRetrieval::whatWQPdata(),
+#' defaults to NULL; see https://www.waterqualitydata.us/webservices_documentation for more 
+#' information.  
 #' 
-#' @value returns a list of sites from the Water Quality Portal
+#' @value returns a data frame containing sites available from the Water Quality Portal
 #' 
-#' @example inventory_wqp(aoi_bbox, "Conductivity", siteType = "Stream")
-#' @example inventory_wqp(aoi_bbox, "Temperature", siteType = "Lake, Reservoir, Impoundment")
+#' @example inventory_wqp(aoi_bbox, "Conductivity", wqp_args = list(siteType = "Stream"))
+#' @example inventory_wqp(aoi_bbox, "Temperature", wqp_args = list(siteType = "Lake, Reservoir, Impoundment"))
 #' 
-
-inventory_wqp <- function(grid, char_names, ...){
+inventory_wqp <- function(grid, char_names, wqp_args = NULL){
   
   # Get bounding box for the grid polygon
   bbox <- sf::st_bbox(grid)
@@ -27,10 +27,11 @@ inventory_wqp <- function(grid, char_names, ...){
 
   # Inventory available WQP data
   wqp_inventory <- lapply(char_names,function(x){
-    dataRetrieval::whatWQPdata(
-      bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax),
-      characteristicName = x,
-      ...) %>%
+    # define arguments for whatWQPdata
+    wqp_args_all <- c(wqp_args, list(bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax),
+                                     characteristicName = x))
+    # query WQP
+    dataRetrieval::whatWQPdata(wqp_args_all) %>%
       mutate(CharacteristicName = x)
   }) %>%
     bind_rows()
