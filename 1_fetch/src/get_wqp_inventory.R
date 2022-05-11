@@ -82,11 +82,11 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
     # within each element to the desired crs
     lapply(., function(x){
       # assume unknown crs (datum equals "UNKNWN", "OTHER") correspond with WGS84
-      epsg_in <- case_when(x$datum[1] == "NAD83" ~ 4269,
-                           x$datum[1] == "WGS84" ~ 4326,
-                           x$datum[1] == "NAD27" ~ 4267,
-                           x$datum[1] == "UNKWN" ~ 4326,
-                           x$datum[1] == "OTHER" ~ 4326)
+      epsg_in <- case_when(unique(x$datum) == "NAD83" ~ 4269,
+                           unique(x$datum) == "WGS84" ~ 4326,
+                           unique(x$datum) == "NAD27" ~ 4267,
+                           unique(x$datum) == "UNKWN" ~ 4326,
+                           unique(x$datum) == "OTHER" ~ 4326)
       
       # convert data frame to sf object and transform to desired crs
       if(!is.na(epsg_in)){
