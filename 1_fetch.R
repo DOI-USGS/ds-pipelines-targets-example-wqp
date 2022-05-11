@@ -84,7 +84,7 @@ p1_targets_list <- list(
   # Subset the WQP inventory to only retain sites within the area of interest
   tar_target(
     p1_wqp_inventory_aoi,
-    subset_inventory(p1_wqp_inventory, p1_AOI_sf)
+    subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
   )
 
 )
