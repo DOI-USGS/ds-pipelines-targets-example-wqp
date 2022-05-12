@@ -64,21 +64,27 @@ p1_targets_list <- list(
     subset_grids_to_aoi(p1_conus_grid, p1_AOI_sf, dist_m = 5000)
   ),
   
-  # Inventory data available from the WQP within the area of interest. To
-  # prevent timeout issues that result from large data requests, use {targets}
-  # dynamic branching capabilities to map inventory_wqp() over each grid within
-  # p1_conus_grid_aoi_bbox. {targets} will then combine all of the grid-scale 
-  # inventories into one table when building p1_wqp_inventory.
+  # Inventory data available from the WQP within each of the boxes that overlap
+  # the area of interest. To prevent timeout issues that result from large data 
+  # requests, use {targets} dynamic branching capabilities to map the function 
+  # inventory_wqp() over each grid within p1_conus_grid_aoi. {targets} will 
+  # then combine all of the grid-scale inventories into one table.
   tar_target(
     p1_wqp_inventory,
-    # inventory_wqp() requires grid and char_names as inputs, but users
-    # can also pass additional arguments, e.g. sampleMedia or siteType.
-    # See documentation in 1_fetch/src/get_wqp_inventory.R for details.
+    # inventory_wqp() requires grid and char_names as inputs, but users can 
+    # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
+    # wqp_args. Below, wqp_args is defined in _targets.R. See documentation
+    # in 1_fetch/src/get_wqp_inventory.R for further details.
     inventory_wqp(grid = p1_conus_grid_aoi,
                   char_names = p1_char_names,
-                  sampleMedia = "Water",
-                  siteType = "Stream"),
+                  wqp_args = wqp_args),
     pattern = map(p1_conus_grid_aoi)
+  ),
+  
+  # Subset the WQP inventory to only retain sites within the area of interest
+  tar_target(
+    p1_wqp_inventory_aoi,
+    subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
   )
 
 )
