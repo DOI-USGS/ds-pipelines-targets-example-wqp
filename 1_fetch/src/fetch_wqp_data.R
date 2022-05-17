@@ -1,3 +1,22 @@
+#' Download data from the Water Quality Portal
+#' 
+#' @description Function to pull WQP data given a vector of site ids
+#'  
+#' @param siteids vector of character strings containing site identifiers
+#' @param query_site_limit integer; chunk up the WQP data pulls by setting 
+#' the maximum number of sites to include in any single data pull. Defaults
+#' to 500.
+#' @param min_results integer indicating the minumum number of records a site
+#' should contain to include that site in the data pull, defaults to 1.
+#' @param min_date character string indicating the earliest requested activity 
+#' start date, defaults to "", which returns all available records. 
+#' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
+#' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
+#' for more information.  
+#' 
+#' @value returns a data frame containing data downloaded from the Water Quality Portal, 
+#' where each row represents a unique data record. 
+#' 
 fetch_wqp_data <- function(siteids, characteristics, query_site_limit = 500, 
                            min_results = 1, min_date = "", wqp_args = NULL){
   
