@@ -1,9 +1,6 @@
-fetch_wqp_data <- function(wqp_inventory, characteristics, query_site_limit = 500, 
+fetch_wqp_data <- function(siteids, characteristics, query_site_limit = 500, 
                            min_results = 1, min_date = "", wqp_args = NULL){
   
-  siteids <- wqp_inventory %>%
-    pull(MonitoringLocationIdentifier) %>%
-    unique()
   n_total_sites <- length(siteids) 
   
   # Break up sites into multiple WQP calls to avoid timeout issues 
