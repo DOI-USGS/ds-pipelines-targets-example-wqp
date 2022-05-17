@@ -95,11 +95,17 @@ p1_targets_list <- list(
       pull(MonitoringLocationIdentifier) %>%
       unique()
   ),
+  
+  # Group the sites into reasonably sized chunks for downloading data 
+  tar_target(
+    p1_site_ids_grouped,
+    add_download_groups(p1_site_ids, max_sites_allowed = 500)
+  ),
 
   # Download data using output of WQP inventory  
   tar_target(
     p1_wqp_data_aoi,
-    fetch_wqp_data(p1_site_ids, p1_char_names, 
+    fetch_wqp_data(p1_site_ids_grouped, p1_char_names, 
                    query_site_limit = 500, wqp_args = wqp_args)
   )
 
