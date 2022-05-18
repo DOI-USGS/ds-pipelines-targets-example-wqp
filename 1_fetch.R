@@ -2,6 +2,7 @@
 source("1_fetch/src/check_characteristics.R")
 source("1_fetch/src/create_grids.R")
 source("1_fetch/src/get_wqp_inventory.R")
+source("1_fetch/src/fetch_wqp_data.R")
 
 p1_targets_list <- list(
   
@@ -85,6 +86,30 @@ p1_targets_list <- list(
   tar_target(
     p1_wqp_inventory_aoi,
     subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
+  ),
+  
+  # Pull site id's from the WQP inventory
+  tar_target(
+    p1_site_ids,
+    p1_wqp_inventory_aoi %>%
+      pull(MonitoringLocationIdentifier) %>%
+      unique()
+  ),
+  
+  # Group the sites into reasonably sized chunks for downloading data 
+  tar_target(
+    p1_site_ids_grouped,
+    add_download_groups(p1_site_ids, max_sites_allowed = 500) %>%
+      group_by(download_grp) %>%
+      tar_group(),
+    iteration = "group"
+  ),
+
+  # Map over groups of sites to download data   
+  tar_target(
+    p1_wqp_data_aoi,
+    fetch_wqp_data(p1_site_ids_grouped, p1_char_names, wqp_args = wqp_args),
+    pattern = map(p1_site_ids_grouped)
   )
 
 )
