@@ -99,14 +99,17 @@ p1_targets_list <- list(
   # Group the sites into reasonably sized chunks for downloading data 
   tar_target(
     p1_site_ids_grouped,
-    add_download_groups(p1_site_ids, max_sites_allowed = 500)
+    add_download_groups(p1_site_ids, max_sites_allowed = 500) %>%
+      group_by(download_grp) %>%
+      tar_group(),
+    iteration = "group"
   ),
 
-  # Download data using output of WQP inventory  
+  # Map over groups of sites to download data   
   tar_target(
     p1_wqp_data_aoi,
-    fetch_wqp_data(p1_site_ids_grouped, p1_char_names, 
-                   query_site_limit = 500, wqp_args = wqp_args)
+    fetch_wqp_data(p1_site_ids_grouped, p1_char_names, wqp_args = wqp_args),
+    pattern = map(p1_site_ids_grouped)
   )
 
 )
