@@ -31,10 +31,6 @@ add_download_groups <- function(siteids, max_sites_allowed = 500) {
 #' @param siteids_grouped vector of character strings containing site identifiers
 #' @param characteristics vector of character strings indicating which WQP
 #' CharacteristicName to query
-#' @param min_results integer indicating the minumum number of records a site
-#' should contain to include that site in the data pull, defaults to 1.
-#' @param min_date character string indicating the earliest requested activity 
-#' start date, defaults to "", which returns all available records. 
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.  
@@ -42,17 +38,14 @@ add_download_groups <- function(siteids, max_sites_allowed = 500) {
 #' @return returns a data frame containing data downloaded from the Water Quality Portal, 
 #' where each row represents a unique data record. 
 #' 
-fetch_wqp_data <- function(siteids_grouped, characteristics,
-                           min_results = 1, min_date = "", wqp_args = NULL){
+fetch_wqp_data <- function(siteids_grouped, characteristics, wqp_args = NULL){
   
   message(sprintf("Retrieving WQP data for sites %s:%s",
                   min(siteids_grouped$site_n), max(siteids_grouped$site_n)))
   
   # Define arguments for readWQPdata
   wqp_args_all <- c(wqp_args, list(siteid = siteids_grouped$site_id,
-                                   characteristicName = c(characteristics),
-                                   minresults = min_results, 
-                                   startDateLo = min_date))
+                                   characteristicName = c(characteristics)))
   
   # Pull data
   wqp_data <- dataRetrieval::readWQPdata(wqp_args_all)
