@@ -88,6 +88,12 @@ p1_targets_list <- list(
     subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
   ),
   
+  tar_target(
+    p1_wqp_summary,
+    summarize_inventory(p1_wqp_inventory_aoi, "1_fetch/out/wqp_query_summary.csv"),
+    format = "file"
+  ),
+  
   # Pull site id's from the WQP inventory
   tar_target(
     p1_site_ids,
