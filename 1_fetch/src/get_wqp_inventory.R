@@ -160,29 +160,3 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   
 }
 
-#' Function to summarize the expected number of sites and samples to be returned
-#' from the WQP for the area of interest
-#'
-#' @param wqp_inventory data frame containing sites returned from the WQP query,
-#' with one row per site; contains columns CharacteristicName and resultCount.
-#' @param fileout character string indicating the name of the saved file, including
-#' file path and extension.
-#' 
-summarize_inventory <- function(wqp_inventory, fileout){
-  
-  # Summarize WQP inventory
-  wqp_summary <- wqp_inventory %>%
-    group_by(CharacteristicName) %>%
-    summarize(sites_count = n(),
-              results_count = sum(resultCount),
-              .groups = 'drop') %>%
-    select(CharacteristicName, sites_count, results_count)
-  
-  # Write summary file
-  write_csv(wqp_summary, file = fileout)
-  
-  return(fileout)
-  
-}
-
-
