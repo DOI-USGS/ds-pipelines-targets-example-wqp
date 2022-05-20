@@ -89,7 +89,7 @@ p1_targets_list <- list(
   ),
   
   tar_target(
-    p1_wqp_summary,
+    p1_wqp_query_summary,
     summarize_inventory(p1_wqp_inventory_aoi, "1_fetch/out/wqp_query_summary.csv"),
     format = "file"
   ),
@@ -116,6 +116,12 @@ p1_targets_list <- list(
     p1_wqp_data_aoi,
     fetch_wqp_data(p1_site_ids_grouped, p1_char_names, wqp_args = wqp_args),
     pattern = map(p1_site_ids_grouped)
+  ),
+  
+  tar_target(
+    p1_wqp_data_summary,
+    summarize_data_pull(p1_wqp_query_summary, p1_wqp_data_aoi, "1_fetch/out/wqp_data_pull_summary.csv"),
+    format = "file"
   )
 
 )
