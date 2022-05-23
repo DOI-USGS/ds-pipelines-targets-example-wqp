@@ -40,20 +40,8 @@ summarize_wqp_inventory <- function(wqp_inventory, fileout){
 summarize_wqp_data <- function(wqp_inventory_summary_csv, wqp_data, fileout){
   
   # Read in WQP inventory summary
-  expected_results <- readr::read_csv(wqp_inventory_summary_csv, 
-                                      show_col_types = FALSE) %>%
-    pull(results_count) %>%
-    sum()
-  realized_results <- dim(wqp_data)[1]
-  
-  # Compare WQP inventory summary with data pull 
-  if(realized_results != expected_results){
-    warning(sprintf("Was expecting %s rows of data based on the WQP inventory but data pull returned %s rows.", 
-                    expected_results, realized_results))
-  } else {
-    message(sprintf("All good! Was expecting %s rows of data based on the WQP inventory and data pull returned %s rows.",
-                    expected_results, realized_results))
-  }
+  wqp_inventory_summary <- readr::read_csv(wqp_inventory_summary_csv, show_col_types = FALSE) %>%
+    rename(sites_count_expected = sites_count, results_count_expected = results_count)
   
   # Summarize WQP data pull
   wqp_summary <- wqp_data %>%
@@ -62,6 +50,40 @@ summarize_wqp_data <- function(wqp_inventory_summary_csv, wqp_data, fileout){
               results_count = length(ResultMeasureValue),
               .groups = 'drop') %>%
     select(CharacteristicName, sites_count, results_count)
+  
+  # Compare WQP inventory summary with data pull 
+  compare_summaries <- wqp_summary %>%
+    left_join(wqp_inventory_summary, by = "CharacteristicName") %>%
+    mutate(results_diff = results_count_expected - results_count,
+           sites_diff = sites_count_expected - sites_count)
+  
+  msg_suggest <- "Check that wqp_args are the same for both p1_wqp_inventory and p1_wqp_data_aoi. 
+  In addition, check whether the inventory is outdated by running tar_outdated() 
+  or tar_visnetwork(). If outdated, try running tar_invalidate(p1_wqp_inventory) 
+  followed by tar_make() to re-pull the data."
+  
+  msg_if_greater <- sprintf("The expected number of records from the WQP inventory is greater than
+  the number of records in the data pull for the following characteristics: \n\n%s\n\n%s\n",
+  paste(compare_summaries$CharacteristicName[compare_summaries$results_diff > 0], collapse="\n"),
+  msg_suggest)
+  
+  msg_if_fewer <- sprintf("The expected number of records from the WQP inventory is less than
+  the number of records in the data pull for the following characteristics:\n\n%s\n\n%s\n",
+  paste(compare_summaries$CharacteristicName[compare_summaries$results_diff < 0], collapse="\n"),
+  msg_suggest)
+  
+  if(any(compare_summaries$results_diff != 0)) {
+    # Find any characteristics for which the inventory contains more records than the data pull
+    if(any(compare_summaries$results_diff > 0)){
+      warning(msg_if_greater)
+    }
+    # Find any characteristics for which the inventory contains fewer records than the data pull
+    if(any(compare_summaries$results_diff < 0)){
+      warning(msg_if_fewer)
+    }
+  } else {
+    message("All good! The expected number of records from the WQP inventory matches the data pull for all characteristics.")
+  }
   
   # Write summary file
   write_csv(wqp_summary, file = fileout)
