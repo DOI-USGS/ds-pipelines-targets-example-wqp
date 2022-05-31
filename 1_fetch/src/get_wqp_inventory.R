@@ -15,6 +15,9 @@
 #' @example inventory_wqp(aoi_bbox, "Conductivity", wqp_args = list(siteType = "Stream"))
 #' @example inventory_wqp(aoi_bbox, "Temperature", wqp_args = list(siteType = "Lake, Reservoir, Impoundment"))
 #' 
+#' explicitly load and attach sf package to handle geometry data in `grid`
+library(sf)
+
 inventory_wqp <- function(grid, char_names, wqp_args = NULL){
   
   # Get bounding box for the grid polygon
