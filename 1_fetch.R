@@ -96,12 +96,12 @@ p1_targets_list <- list(
     format = "file"
   ),
   
-  # Pull site id's from the WQP inventory
+  # Pull site id's and total number of records for each site from the WQP inventory
   tar_target(
     p1_site_ids,
     p1_wqp_inventory_aoi %>%
-      pull(MonitoringLocationIdentifier) %>%
-      unique()
+      group_by(MonitoringLocationIdentifier) %>%
+      summarize(results_count = sum(resultCount, na.rm = TRUE))
   ),
   
   # Group the sites into reasonably sized chunks for downloading data 
