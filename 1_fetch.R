@@ -3,6 +3,7 @@ source("1_fetch/src/check_characteristics.R")
 source("1_fetch/src/create_grids.R")
 source("1_fetch/src/get_wqp_inventory.R")
 source("1_fetch/src/fetch_wqp_data.R")
+source("1_fetch/src/summarize_wqp_records.R")
 
 p1_targets_list <- list(
   
@@ -88,6 +89,13 @@ p1_targets_list <- list(
     subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
   ),
   
+  # Summarize the data that would come back from the WQP
+  tar_target(
+    p1_wqp_inventory_summary_csv,
+    summarize_wqp_inventory(p1_wqp_inventory_aoi, "1_fetch/log/summary_wqp_inventory.csv"),
+    format = "file"
+  ),
+  
   # Pull site id's from the WQP inventory
   tar_target(
     p1_site_ids,
@@ -110,6 +118,14 @@ p1_targets_list <- list(
     p1_wqp_data_aoi,
     fetch_wqp_data(p1_site_ids_grouped, p1_char_names, wqp_args = wqp_args),
     pattern = map(p1_site_ids_grouped)
+  ),
+  
+  # Summarize the data downloaded from the WQP
+  tar_target(
+    p1_wqp_data_summary_csv,
+    summarize_wqp_data(p1_wqp_inventory_summary_csv, p1_wqp_data_aoi, 
+                       "1_fetch/log/summary_wqp_data.csv"),
+    format = "file"
   )
 
 )

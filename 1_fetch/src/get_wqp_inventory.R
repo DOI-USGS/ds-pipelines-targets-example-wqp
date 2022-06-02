@@ -163,4 +163,3 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   
 }
 
-

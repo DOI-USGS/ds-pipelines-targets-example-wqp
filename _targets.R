@@ -7,8 +7,9 @@ tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval',
 source("1_fetch.R")
 
 # Define the temporal extent of our data pull
-start_date <- '2015-01-01'
-end_date <- '2015-12-31'
+# set start_date or end_date to "" to query the earliest or latest available date
+start_date <- "2000-01-01"
+end_date <- "2020-12-31" 
 
 # Define which parameter groups (and CharacteristicNames) to return from WQP 
 # options for parameter groups are represented in first level of 1_fetch/cfg/wqp_codes.yml
@@ -21,12 +22,12 @@ coords_lat <- c(40.547, 41.029, 39.880)
 
 # Specify arguments to WQP queries
 # see https://www.waterqualitydata.us/webservices_documentation for more information 
-wqp_args <- list(sampleMedia = "Water",
+wqp_args <- list(sampleMedia = c("Water","water"),
                  siteType = "Stream",
                  # return sites with at least one data record
                  minresults = 1, 
-                 # return all available records
-                 startDateLo = "")
+                 startDateLo = start_date,
+                 startDateHi = end_date)
 
 # Return the complete list of targets
 c(p1_targets_list)
