@@ -96,18 +96,18 @@ p1_targets_list <- list(
     format = "file"
   ),
   
-  # Pull site id's from the WQP inventory
+  # Pull site id's and total number of records for each site from the WQP inventory
   tar_target(
-    p1_site_ids,
+    p1_site_counts,
     p1_wqp_inventory_aoi %>%
-      pull(MonitoringLocationIdentifier) %>%
-      unique()
+      group_by(MonitoringLocationIdentifier) %>%
+      summarize(results_count = sum(resultCount, na.rm = TRUE))
   ),
   
   # Group the sites into reasonably sized chunks for downloading data 
   tar_target(
-    p1_site_ids_grouped,
-    add_download_groups(p1_site_ids, max_sites_allowed = 500) %>%
+    p1_site_counts_grouped,
+    add_download_groups(p1_site_counts, max_sites_allowed = 500) %>%
       group_by(download_grp) %>%
       tar_group(),
     iteration = "group"
@@ -116,8 +116,8 @@ p1_targets_list <- list(
   # Map over groups of sites to download data   
   tar_target(
     p1_wqp_data_aoi,
-    fetch_wqp_data(p1_site_ids_grouped, p1_char_names, wqp_args = wqp_args),
-    pattern = map(p1_site_ids_grouped)
+    fetch_wqp_data(p1_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
+    pattern = map(p1_site_counts_grouped)
   ),
   
   # Summarize the data downloaded from the WQP

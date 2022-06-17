@@ -27,7 +27,7 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL){
   char_names <- as.character(unlist(char_names))
   
   # Print time-specific message so user can see progress
-  message(sprintf('Retrieving whatWQPdata for grid %s...', grid$id))
+  message(sprintf('Inventorying WQP data for grid %s', grid$id))
 
   # Inventory available WQP data
   wqp_inventory <- lapply(char_names,function(x){
