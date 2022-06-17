@@ -3,25 +3,26 @@
 #' @description This function returns a data frame with a single column used
 #' to group the sites into reasonably sized chunks for downloading data.
 #' 
-#' @param siteids_df data frame containing the site identifiers and total number of
-#' records available for each site. Must contain column `MonitoringLocationIdentifier`.
+#' @param sitecounts_df data frame containing the site identifiers and total number of
+#' records available for each site. Must contain columns `MonitoringLocationIdentifier`.
 #' @param max_sites_allowed integer indicating the maximum number of sites allowed
 #' in each download group. Defaults to 500.
 #' 
 #' @return returns a data frame with columns site id, the total number of records,
-#' site number, and an additional column called `download_grp` which is made up of
-#' unique groups that enable use of `group_by()` and then `tar_group()` for downloading.
+#' (retains the column from `sitecounts_df`), site number, and an additional column 
+#' called `download_grp` which is made up of unique groups that enable use of 
+#' `group_by()` and then `tar_group()` for downloading.
 #' 
-add_download_groups <- function(siteids_df, max_sites_allowed = 500) {
+add_download_groups <- function(sitecounts_df, max_sites_allowed = 500) {
   
-  siteids_grouped <- siteids_df %>%
+  sitecounts_grouped <- sitecounts_df %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
     mutate(site_n = row_number()) %>%
     # Add a column indicating which chunk a site belongs to; the number of rows
     # in each chunk should not exceed `max_sites_allowed`
     mutate(download_grp = ((site_n -1) %/% max_sites_allowed) + 1)
   
-  return(siteids_grouped)
+  return(sitecounts_grouped)
 
 }
 
