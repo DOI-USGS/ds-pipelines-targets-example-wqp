@@ -47,7 +47,7 @@ p1_targets_list <- list(
   # Create a spatial (sf) object representing the area of interest
   tar_target(
     p1_AOI_sf,
-    sf::st_as_sf(p1_AOI,coords=c("lon","lat"),crs=4326) %>%
+    sf::st_as_sf(p1_AOI, coords = c("lon","lat"), crs = 4326) %>%
       summarize(geometry = st_combine(geometry)) %>%
       sf::st_cast("POLYGON")
   ),
@@ -65,7 +65,7 @@ p1_targets_list <- list(
   # query the WQP.
   tar_target(
     p1_global_grid_aoi,
-    subset_grids_to_aoi(p1_global_grid, p1_AOI_sf, dist_m = 5000)
+    subset_grids_to_aoi(p1_global_grid, p1_AOI_sf)
   ),
   
   # Inventory data available from the WQP within each of the boxes that overlap
@@ -88,7 +88,7 @@ p1_targets_list <- list(
   # Subset the WQP inventory to only retain sites within the area of interest
   tar_target(
     p1_wqp_inventory_aoi,
-    subset_inventory(p1_wqp_inventory, p1_AOI_sf, buffer_dist_m = 100)
+    subset_inventory(p1_wqp_inventory, p1_AOI_sf)
   ),
   
   # Summarize the data that would come back from the WQP

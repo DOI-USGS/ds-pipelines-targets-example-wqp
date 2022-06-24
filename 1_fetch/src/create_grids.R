@@ -56,24 +56,28 @@ create_global_grid <- function(cellsize = c(2,2)){
 #' 
 #' @param grid sf polygon object containing the geometries and an attribute 
 #' id for each box within the grid.
-#' @param aoi_poly sf polygon object representing the area of interest
-#' @param dist_m integer; grid geometries will be returned if distances between
-#' the grid polygons and the aoi polygon are smaller or equal to this value.
+#' @param aoi_sf sf polygon object representing the area of interest
+#' @param buffer_dist_m integer; grid geometries will be returned if distances 
+#' between the grid polygons and the aoi polygon are smaller or equal to this value.
+#' Defaults to 0 meters, although users may adjust the distance.
 #' 
 #' @value returns an sf polygon object containing the geometries for each box 
 #' within the holistic grid that overlaps the buffered area of interest.
 #' 
-#' @example subset_grids_to_aoi(grid = p1_global_grid, dist_m = 5000)
+#' @example subset_grids_to_aoi(grid = p1_global_grid, 
+#'                              aoi_sf = p1_AOI_sf, 
+#'                              dist_m = 5000)
 #' 
 
-subset_grids_to_aoi <- function(grid, aoi_poly, dist_m){
+subset_grids_to_aoi <- function(grid, aoi_sf, buffer_dist_m = 0){
 
   
   # Filter the big grid of boxes to only include those that overlap/are within
   # a given distance of the area of interest
   grid_subset_aoi <- grid %>%
-    sf::st_filter(y = sf::st_transform(aoi_poly,sf::st_crs(grid)),
-                  .predicate = st_is_within_distance,dist=units::set_units(dist_m, m))   
+    sf::st_filter(y = sf::st_transform(aoi_sf, sf::st_crs(grid)),
+                  .predicate = st_is_within_distance,
+                  dist = units::set_units(buffer_dist_m, m))   
   
   return(grid_subset_aoi)
   

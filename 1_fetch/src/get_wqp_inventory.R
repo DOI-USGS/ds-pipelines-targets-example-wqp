@@ -128,7 +128,7 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
 #' @param aoi_sf sf object representing the area of interest
 #' @param buffer_dist_m integer reflecting a desired buffer distance (in meters) around
 #' the area of interest; if a site is within buffer_dist_m of aoi_sf, retain that site.
-#' Defaults to zero.
+#' Defaults to 0 meters. 
 #' 
 #' @value returns a data frame containing sites from the Water Quality Portal that 
 #' are located within the area of interest.
@@ -136,8 +136,9 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
 subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   
   # Harmonize different coordinate reference systems used across sites
-  queried_sites_transformed <- transform_site_locations(wqp_inventory, crs_out= "WGS84") %>%
-    sf::st_as_sf(coords = c("lon","lat"), crs = 4326) 
+  queried_sites_transformed <- transform_site_locations(wqp_inventory, crs_out= "WGS84") 
+  queried_sites_transformed_sf <- sf::st_as_sf(queried_sites_transformed, 
+                                               coords = c("lon","lat"), crs = 4326) 
   
   # Filter wqp inventory to only include sites within area of interest + some user-specified 
   # distance to ensure we retain all sites within the AOI. 
@@ -146,9 +147,10 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   # st_is_within_distance is used here instead because buffers created using the s2 engine
   # are rough and can be glitchy when working with geographic coordinates. See this blog
   # post by the sf maintainers: https://r-spatial.github.io/sf/articles/sf7.html#buffers-1
-  queried_sites_aoi <- queried_sites_transformed %>%
-    sf::st_filter(y = sf::st_transform(aoi_sf,sf::st_crs(.)),
-                  .predicate = st_is_within_distance,dist=units::set_units(buffer_dist_m, m)) %>%
+  queried_sites_aoi <- queried_sites_transformed_sf %>%
+    sf::st_filter(y = sf::st_transform(aoi_sf, sf::st_crs(.)),
+                  .predicate = st_is_within_distance,
+                  dist = units::set_units(buffer_dist_m, m)) %>%
     sf::st_drop_geometry() %>%
     pull(MonitoringLocationIdentifier) %>%
     unique()
