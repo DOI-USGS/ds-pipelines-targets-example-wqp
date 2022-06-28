@@ -39,11 +39,13 @@ add_download_groups <- function(sitecounts_df, max_sites_allowed = 500) {
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.  
+#' @param max_tries integer, maximum number of attempts if the data download 
+#' step returns an error. Defaults to 3.
 #' 
 #' @return returns a data frame containing data downloaded from the Water Quality Portal, 
 #' where each row represents a unique data record. 
 #' 
-fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL){
+fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, max_tries = 3){
   
   message(sprintf("Retrieving WQP data for sites %s:%s",
                   min(site_counts_grouped$site_n), 
@@ -53,10 +55,10 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
   wqp_args_all <- c(wqp_args, list(siteid = site_counts_grouped$site_id,
                                    characteristicName = c(characteristics)))
   
-  # Pull data
+  # Pull data, retrying up to the number of times indicated by `max_tries`
   wqp_data <- retry::retry(dataRetrieval::readWQPdata(wqp_args_all),
                            when = "Error:", 
-                           max_tries = 3)
+                           max_tries = max_tries)
   
   # Some records return character strings when we expect numeric values, 
   # e.g. when "*Non-detect" appears in the "ResultMeasureValue" field. 
