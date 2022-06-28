@@ -82,7 +82,7 @@ p1_targets_list <- list(
     inventory_wqp(grid = p1_global_grid_aoi,
                   char_names = p1_char_names,
                   wqp_args = wqp_args),
-    pattern = map(p1_global_grid_aoi)
+    pattern = cross(p1_global_grid_aoi, p1_char_names)
   ),
   
   # Subset the WQP inventory to only retain sites within the area of interest
