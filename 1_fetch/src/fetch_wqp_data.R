@@ -54,7 +54,9 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                                    characteristicName = c(characteristics)))
   
   # Pull data
-  wqp_data <- dataRetrieval::readWQPdata(wqp_args_all)
+  wqp_data <- retry::retry(dataRetrieval::readWQPdata(wqp_args_all),
+                           when = "Error:", 
+                           max_tries = 3)
   
   # Some records return character strings when we expect numeric values, 
   # e.g. when "*Non-detect" appears in the "ResultMeasureValue" field. 
