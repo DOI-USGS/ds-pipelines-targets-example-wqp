@@ -115,7 +115,16 @@ p1_targets_list <- list(
     iteration = "group"
   ),
 
-  # Map over groups of sites to download data   
+  # Map over groups of sites to download data.
+  # Note that because error = 'continue', {targets} will attempt to build all 
+  # of the "branches" represented in p1_site_counts_grouped, even if one branch 
+  # returns an error. This way, we will not need to re-build branches that have
+  # already run successfully. However, if a branch fails, {targets} will throw
+  # an error here because it cannot merge the individual branches into a single
+  # data frame. The error(s) associated with the failed branch will therefore 
+  # need to be resolved before the full target can be successfully built. A 
+  # common reason a branch may fail is due to WQP timeout errors. Timeout errors 
+  # can sometimes be resolved by waiting a few hours and retrying tar_make().
   tar_target(
     p1_wqp_data_aoi,
     fetch_wqp_data(p1_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
