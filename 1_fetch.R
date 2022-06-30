@@ -104,9 +104,10 @@ p1_targets_list <- list(
   tar_target(
     p1_site_counts,
     p1_wqp_inventory_aoi %>%
-      group_by(MonitoringLocationIdentifier) %>%
+      group_by(MonitoringLocationIdentifier, lat, lon, datum) %>%
       summarize(results_count = sum(resultCount, na.rm = TRUE),
-                grid_id = unique(grid_id))
+                grid_id = unique(grid_id),
+                .groups = 'drop')
   ),
   
   # Group the sites into reasonably sized chunks for downloading data 
