@@ -71,8 +71,9 @@ p1_targets_list <- list(
   # Inventory data available from the WQP within each of the boxes that overlap
   # the area of interest. To prevent timeout issues that result from large data 
   # requests, use {targets} dynamic branching capabilities to map the function 
-  # inventory_wqp() over each grid within p1_global_grid_aoi. {targets} will 
-  # then combine all of the grid-scale inventories into one table.
+  # inventory_wqp() over each grid within p1_global_grid_aoi. {targets} will then
+  # combine all of the grid-scale inventories into one table. See comments below
+  # associated with target p1_wqp_data_aoi regarding the use of error = 'continue'.
   tar_target(
     p1_wqp_inventory,
     # inventory_wqp() requires grid and char_names as inputs, but users can 

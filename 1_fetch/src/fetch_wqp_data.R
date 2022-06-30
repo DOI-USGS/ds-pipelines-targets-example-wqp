@@ -23,10 +23,11 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
       filter(results_count > max_results) %>%
       pull(MonitoringLocationIdentifier)
     # Print a message to inform the user that some sites contain a lot of data
-    message(sprintf(paste0("results_count exceeds max_results for the sites ",
-                           "below. If you are not already branching across ",
-                           "characteristic names, consider doing so to set up ",
-                           "a manageable query to WQP.\n\n%s\n"),
+    message(sprintf(paste0("results_count exceeds max_results for the sites below. ",
+                           "Assigning data-heavy sites to their own download group to ",
+                           "set up a manageable query to WQP. If you are not already ",
+                           "branching across characteristic names, consider doing so to ",
+                           "further limit query size. \n\n%s\n"),
                     paste(sites_w_many_records, collapse="\n")))
   }
   
