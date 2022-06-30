@@ -71,8 +71,9 @@ p1_targets_list <- list(
   # Inventory data available from the WQP within each of the boxes that overlap
   # the area of interest. To prevent timeout issues that result from large data 
   # requests, use {targets} dynamic branching capabilities to map the function 
-  # inventory_wqp() over each grid within p1_global_grid_aoi. {targets} will 
-  # then combine all of the grid-scale inventories into one table.
+  # inventory_wqp() over each grid within p1_global_grid_aoi. {targets} will then
+  # combine all of the grid-scale inventories into one table. See comments below
+  # associated with target p1_wqp_data_aoi regarding the use of error = 'continue'.
   tar_target(
     p1_wqp_inventory,
     # inventory_wqp() requires grid and char_names as inputs, but users can 
@@ -104,13 +105,16 @@ p1_targets_list <- list(
     p1_site_counts,
     p1_wqp_inventory_aoi %>%
       group_by(MonitoringLocationIdentifier) %>%
-      summarize(results_count = sum(resultCount, na.rm = TRUE))
+      summarize(results_count = sum(resultCount, na.rm = TRUE),
+                grid_id = unique(grid_id))
   ),
   
   # Group the sites into reasonably sized chunks for downloading data 
   tar_target(
     p1_site_counts_grouped,
-    add_download_groups(p1_site_counts, max_sites_allowed = 500) %>%
+    add_download_groups(p1_site_counts, 
+                        max_sites = 500,
+                        max_results = 250000) %>%
       group_by(download_grp) %>%
       tar_group(),
     iteration = "group"

@@ -5,22 +5,50 @@
 #' 
 #' @param sitecounts_df data frame containing the site identifiers and total number of
 #' records available for each site. Must contain columns `MonitoringLocationIdentifier`.
-#' @param max_sites_allowed integer indicating the maximum number of sites allowed
-#' in each download group. Defaults to 500.
+#' @param max_sites integer indicating the maximum number of sites allowed in each
+#' download group. Defaults to 500.
+#' @param max_results integer indicating the maximum number of records allowed in
+#' each download group. Defaults to 250,000.
 #' 
 #' @return returns a data frame with columns site id, the total number of records,
 #' (retains the column from `sitecounts_df`), site number, and an additional column 
 #' called `download_grp` which is made up of unique groups that enable use of 
 #' `group_by()` and then `tar_group()` for downloading.
 #' 
-add_download_groups <- function(sitecounts_df, max_sites_allowed = 500) {
+add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 250000) {
   
+  # Check whether any individual sites have a records count that exceeds `max_results`
+  if(any(sitecounts_df$results_count > max_results)){
+    sites_w_many_records <- sitecounts_df %>%
+      filter(results_count > max_results) %>%
+      pull(MonitoringLocationIdentifier)
+    # Print a message to inform the user that some sites contain a lot of data
+    message(sprintf(paste0("results_count exceeds max_results for the sites below. ",
+                           "Assigning data-heavy sites to their own download group to ",
+                           "set up a manageable query to WQP. If you are not already ",
+                           "branching across characteristic names, consider doing so to ",
+                           "further limit query size. \n\n%s\n"),
+                    paste(sites_w_many_records, collapse="\n")))
+  }
+  
+  # Within each unique grid_id, use the cumsumbinning function from the MESS
+  # package to group sites based on the cumulative sum of results_count 
+  # across sites within the grid, resetting the download group/task number 
+  # if the number of records exceeds the threshold set by `max_results`
   sitecounts_grouped <- sitecounts_df %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
+    split(.$grid_id) %>%
+    purrr::map_dfr(.f = function(df){
+      
+      df_grouped <- df %>%
+        arrange(desc(results_count)) %>%
+        mutate(task_num = MESS::cumsumbinning(x = results_count, 
+                                              threshold = max_results, 
+                                              maxgroupsize = max_sites),
+               download_grp = paste0(grid_id,"_",task_num))
+    }) %>%
     mutate(site_n = row_number()) %>%
-    # Add a column indicating which chunk a site belongs to; the number of rows
-    # in each chunk should not exceed `max_sites_allowed`
-    mutate(download_grp = ((site_n -1) %/% max_sites_allowed) + 1)
+    select(site_id, results_count, site_n, download_grp)
   
   return(sitecounts_grouped)
 

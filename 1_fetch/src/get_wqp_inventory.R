@@ -9,6 +9,8 @@
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.  
+#' @param max_tries integer, maximum number of attempts if the data download 
+#' step returns an error. Defaults to 3.
 #' 
 #' @value returns a data frame containing sites available from the Water Quality Portal
 #' 
@@ -18,7 +20,7 @@
 #' explicitly load and attach sf package to handle geometry data in `grid`
 library(sf)
 
-inventory_wqp <- function(grid, char_names, wqp_args = NULL){
+inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
   
   # Get bounding box for the grid polygon
   bbox <- sf::st_bbox(grid)
@@ -27,7 +29,8 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL){
   char_names <- as.character(unlist(char_names))
   
   # Print time-specific message so user can see progress
-  message(sprintf('Inventorying WQP data for grid %s', grid$id))
+  message(sprintf('Inventorying WQP data for grid %s, %s', 
+                  grid$id, char_names))
 
   # Inventory available WQP data
   wqp_inventory <- lapply(char_names,function(x){
@@ -35,7 +38,9 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL){
     wqp_args_all <- c(wqp_args, list(bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax),
                                      characteristicName = x))
     # query WQP
-    dataRetrieval::whatWQPdata(wqp_args_all) %>%
+    retry::retry(dataRetrieval::whatWQPdata(wqp_args_all),
+                 when = "Error:", 
+                 max_tries = max_tries) %>%
       mutate(CharacteristicName = x, grid_id = grid$id)
   }) %>%
     bind_rows()
