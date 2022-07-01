@@ -17,7 +17,8 @@ identify_bad_ids <- function(sitecounts_df){
     rename(site_id = MonitoringLocationIdentifier) %>% 
     # check that string format matches regex used in WQP
     mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+\\-.*\\S")) %>%
-    filter(site_id != site_id_regex | grepl("/", site_id))
+    filter(site_id != site_id_regex | grepl("/", site_id)) %>%
+    select(-site_id_regex)
   
   if(nrow(sitecounts_bad_ids) > 0){
     message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
