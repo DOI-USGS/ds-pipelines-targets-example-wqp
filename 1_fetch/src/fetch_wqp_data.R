@@ -41,7 +41,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
                            "be parsed by WQP. Assigning %s sites and %s records with bad ",
                            "identifiers to their own download groups so that they can be ",
-                           "queried separately."),
+                           "queried separately using a different method."),
                     nrow(sitecounts_bad_ids), sum(sitecounts_bad_ids$results_count)))
   }
   
