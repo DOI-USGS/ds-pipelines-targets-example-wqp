@@ -29,6 +29,12 @@ wqp_args <- list(sampleMedia = c("Water","water"),
                  startDateLo = start_date,
                  startDateHi = end_date)
 
+# [Optional] variable that can be edited to force rebuild of the entire data pipeline,
+# including inventory, download, and harmonization steps. Leaving as is will use the
+# pipeline's built-in behavior to only re-inventory and re-download data for subsets
+# of the data that have changed. 
+last_forced_build <- "2022-07-01"
+
 # Return the complete list of targets
 c(p1_targets_list)
 
