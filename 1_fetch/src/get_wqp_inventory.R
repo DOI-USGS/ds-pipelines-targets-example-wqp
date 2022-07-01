@@ -156,17 +156,15 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
     sf::st_filter(y = sf::st_transform(aoi_sf, sf::st_crs(.)),
                   .predicate = st_is_within_distance,
                   dist = units::set_units(buffer_dist_m, m)) %>%
+    mutate(lon = sf::st_coordinates(.)[,1],
+           lat = sf::st_coordinates(.)[,2]) %>%
     sf::st_drop_geometry() %>%
-    pull(MonitoringLocationIdentifier) %>%
-    unique()
-  
-  wqp_inventory_aoi <- wqp_inventory %>%
-    filter(MonitoringLocationIdentifier %in% queried_sites_aoi)
+    select(c(any_of(names(wqp_inventory)), datum))
   
   message(sprintf("Returned %s sites within area of interest.",
-                  length(queried_sites_aoi)))
+                  length(queried_sites_aoi$MonitoringLocationIdentifier)))
   
-  return(wqp_inventory_aoi)
+  return(queried_sites_aoi)
   
 }
 
