@@ -104,9 +104,8 @@ p1_targets_list <- list(
   tar_target(
     p1_site_counts,
     p1_wqp_inventory_aoi %>%
-      group_by(MonitoringLocationIdentifier, lat, lon, datum) %>%
+      group_by(MonitoringLocationIdentifier, lon, lat, datum, grid_id) %>%
       summarize(results_count = sum(resultCount, na.rm = TRUE),
-                grid_id = unique(grid_id),
                 .groups = 'drop')
   ),
   
