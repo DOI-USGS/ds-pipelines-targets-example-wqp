@@ -78,9 +78,8 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   
   # Combine all sites back together, now with assigned download_grp id's
   # and format columns
-  sitecounts_grouped <- bind_rows(sitecounts_grouped_good_ids,
-                                  sitecounts_grouped_bad_ids)
-  sitecounts_grouped_out <- sitecounts_grouped %>%
+  sitecounts_grouped_out <- sitecounts_grouped_good_ids %>%
+    bind_rows(sitecounts_grouped_bad_ids) %>%
     arrange(download_grp) %>%
     mutate(site_n = row_number()) %>% 
     select(site_id, lat, lon, datum, results_count, site_n, download_grp, pull_by_id)
