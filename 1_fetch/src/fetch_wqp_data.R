@@ -1,10 +1,42 @@
+#' Find sites with identifier names that are likely to cause problems
+#' when downloading data from WQP by siteid
+#' 
+#' @details Some site identifiers contain characters that cannot be parsed 
+#' by WQP, including "/". Identify and subset sites with potentially
+#' problematic identifiers.
+#' 
+#' @param sitecounts_df data frame containing the site identifiers and total number of
+#' records available for each site. Must contain columns `MonitoringLocationIdentifier`
+#' and `results_count`.
+#' 
+identify_bad_ids <- function(sitecounts_df){
+  
+  # Check whether any sites have identifiers that are likely to cause problems when
+  # downloading the data from WQP
+  sitecounts_bad_ids <- sitecounts_df %>%
+    rename(site_id = MonitoringLocationIdentifier) %>% 
+    filter(grepl("/|ALABAMACOUSHATTATRIBE.TX_WQX|RCE WRP-", site_id))
+  
+  if(nrow(sitecounts_bad_ids) > 0){
+    message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
+                           "be parsed by WQP. Assigning %s sites and %s records with bad ",
+                           "identifiers to their own download groups so that they can be ",
+                           "queried separately using a different method."),
+                    nrow(sitecounts_bad_ids), sum(sitecounts_bad_ids$results_count)))
+  }
+
+  return(sitecounts_bad_ids)
+}
+
+
 #' Group sites for downloading data without hitting the WQP cap
 #' 
 #' @description This function returns a data frame with a single column used
 #' to group the sites into reasonably sized chunks for downloading data.
 #' 
 #' @param sitecounts_df data frame containing the site identifiers and total number of
-#' records available for each site. Must contain columns `MonitoringLocationIdentifier`.
+#' records available for each site. Must contain columns `MonitoringLocationIdentifier`
+#' and `results_count`.
 #' @param max_sites integer indicating the maximum number of sites allowed in each
 #' download group. Defaults to 500.
 #' @param max_results integer indicating the maximum number of records allowed in
@@ -33,17 +65,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   
   # Check whether any sites have identifiers that are likely to cause problems when
   # downloading the data from WQP
-  sitecounts_bad_ids <- sitecounts_df %>%
-    rename(site_id = MonitoringLocationIdentifier) %>% 
-    filter(grepl("/|ALABAMACOUSHATTATRIBE.TX_WQX|RCE WRP-", site_id))
-  
-  if(nrow(sitecounts_bad_ids) > 0){
-    message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
-                           "be parsed by WQP. Assigning %s sites and %s records with bad ",
-                           "identifiers to their own download groups so that they can be ",
-                           "queried separately using a different method."),
-                    nrow(sitecounts_bad_ids), sum(sitecounts_bad_ids$results_count)))
-  }
+  sitecounts_bad_ids <- identify_bad_ids(sitecounts_df)
   
   # Subset 'good' sites with identifiers that can be parsed by WQP
   sitecounts_good_ids <- sitecounts_df %>%
