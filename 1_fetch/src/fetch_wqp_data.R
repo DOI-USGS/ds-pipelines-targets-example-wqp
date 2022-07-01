@@ -67,17 +67,16 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     }) %>%
     mutate(pull_by_id = TRUE)
   
-  # Assign a separate task number and download group for all sites with 
-  # bad identifiers within a grid
+  # Assign a separate task number and download group for each site with bad ids
   sitecounts_grouped_bad_ids <- sitecounts_bad_ids %>%
-    group_by(grid_id) %>%
+    group_by(site_id) %>%
     mutate(task_num = max(sitecounts_grouped_good_ids$task_num) + cur_group_id(),
            download_grp = paste0(grid_id,"_",task_num),
            pull_by_id = FALSE) %>%
     ungroup()
   
-  # Combine all sites back together, now with assigned download_grp id's
-  # and format columns
+  # Combine all sites back together (now with assigned download_grp id's) and
+  # format columns
   sitecounts_grouped_out <- sitecounts_grouped_good_ids %>%
     bind_rows(sitecounts_grouped_bad_ids) %>%
     arrange(download_grp) %>%
