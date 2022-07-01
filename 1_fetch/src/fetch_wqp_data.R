@@ -65,7 +65,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
                                               maxgroupsize = max_sites),
                download_grp = paste0(grid_id,"_",task_num))
     }) %>%
-    mutate(pull_id = TRUE)
+    mutate(pull_by_id = TRUE)
   
   # Assign a separate task number and download group for all sites with 
   # bad identifiers within a grid
@@ -73,7 +73,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     group_by(grid_id) %>%
     mutate(task_num = max(sitecounts_grouped_good_ids$task_num) + cur_group_id(),
            download_grp = paste0(grid_id,"_",task_num),
-           pull_id = FALSE) %>%
+           pull_by_id = FALSE) %>%
     ungroup()
   
   # Combine all sites back together, now with assigned download_grp id's
@@ -83,7 +83,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   sitecounts_grouped_out <- sitecounts_grouped %>%
     arrange(download_grp) %>%
     mutate(site_n = row_number()) %>% 
-    select(site_id, lat, lon, datum, results_count, site_n, download_grp, pull_id)
+    select(site_id, lat, lon, datum, results_count, site_n, download_grp, pull_by_id)
   
   return(sitecounts_grouped_out)
 
@@ -130,8 +130,8 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #'  
 #' @param site_counts_grouped data frame containing site identifiers, the 
 #' total number of records, site numbers, and a download group assigned
-#' for each site. Must contain columns `site_id`, `site_n`, and `pull_id`.
-#' `pull_id` is logical and indicates whether data should be downloaded
+#' for each site. Must contain columns `site_id`, `site_n`, and `pull_by_id`.
+#' `pull_by_id` is logical and indicates whether data should be downloaded
 #' using site identifiers or by querying a small bounding box around the site.
 #' @param characteristics vector of character strings indicating which WQP
 #' CharacteristicName to query
@@ -151,11 +151,11 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                   max(site_counts_grouped$site_n)))
   
   # Define arguments for readWQPdata
-  # sites with pull_id = FALSE contain cannot be queried by their site
+  # sites with pull_by_id = FALSE contain cannot be queried by their site
   # identifiers because of undesired characters that will cause the WQP
   # query to fail. For those sites, query WQP by adding a small bounding
   # box around the site(s) and including bBox in the wqp_args.
-  if(unique(site_counts_grouped$pull_id)){
+  if(unique(site_counts_grouped$pull_by_id)){
     wqp_args_all <- c(wqp_args, 
                       list(siteid = site_counts_grouped$site_id,
                            characteristicName = c(characteristics)))
@@ -170,7 +170,7 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                            when = "Error:", 
                            max_tries = max_tries)
   
-  # We applied special handling for sites with pull_id = FALSE (see comments
+  # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped
   # in case our bounding box approach picked up any additional, undesired sites. 
   # In addition, some records return character strings when we expect numeric 
