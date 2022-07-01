@@ -5,28 +5,17 @@
 #' by WQP, including "/". Identify and subset sites with potentially
 #' problematic identifiers.
 #' 
-#' @param sitecounts_df data frame containing the site identifiers and total number of
-#' records available for each site. Must contain columns `MonitoringLocationIdentifier`
-#' and `results_count`.
+#' @param sitecounts_df data frame containing the site identifiers. Data frame must
+#' at minimum contain column `MonitoringLocationIdentifier`.
 #' 
 identify_bad_ids <- function(sitecounts_df){
   
-  # Check whether any sites have identifiers that are likely to cause problems when
-  # downloading the data from WQP
+  # Check that string format matches regex used in WQP and doesn't contain "/"
   sitecounts_bad_ids <- sitecounts_df %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
-    # check that string format matches regex used in WQP
     mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+\\-.*\\S")) %>%
     filter(site_id != site_id_regex | grepl("/", site_id)) %>%
     select(-site_id_regex)
-  
-  if(nrow(sitecounts_bad_ids) > 0){
-    message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
-                           "be parsed by WQP. Assigning %s sites and %s records with bad ",
-                           "identifiers to their own download groups so that they can be ",
-                           "queried separately using a different method."),
-                    nrow(sitecounts_bad_ids), sum(sitecounts_bad_ids$results_count)))
-  }
 
   return(sitecounts_bad_ids)
 }
@@ -69,6 +58,15 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   # Check whether any sites have identifiers that are likely to cause problems when
   # downloading the data from WQP
   sitecounts_bad_ids <- identify_bad_ids(sitecounts_df)
+  
+  # Inform user if we detect any sites with 'bad' identifiers
+  if(nrow(sitecounts_bad_ids) > 0){
+    message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
+                           "be parsed by WQP. Assigning %s sites and %s records with bad ",
+                           "identifiers to their own download groups so that they can be ",
+                           "queried separately using a different method."),
+                    nrow(sitecounts_bad_ids), sum(sitecounts_bad_ids$results_count)))
+  }
   
   # Subset 'good' sites with identifiers that can be parsed by WQP
   sitecounts_good_ids <- sitecounts_df %>%
