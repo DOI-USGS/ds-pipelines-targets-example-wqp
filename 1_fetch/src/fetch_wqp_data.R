@@ -15,7 +15,9 @@ identify_bad_ids <- function(sitecounts_df){
   # downloading the data from WQP
   sitecounts_bad_ids <- sitecounts_df %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
-    filter(grepl("/|ALABAMACOUSHATTATRIBE.TX_WQX|RCE WRP-", site_id))
+    # check that string format matches regex used in WQP
+    mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+\\-.*\\S")) %>%
+    filter(site_id != site_id_regex | grepl("/", site_id))
   
   if(nrow(sitecounts_bad_ids) > 0){
     message(sprintf(paste0("Some site identifiers contain undesired characters and cannot ",
