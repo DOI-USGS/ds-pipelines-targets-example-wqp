@@ -150,7 +150,7 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                   max(site_counts_grouped$site_n)))
   
   # Define arguments for readWQPdata
-  # sites with pull_by_id = FALSE contain cannot be queried by their site
+  # sites with pull_by_id = FALSE cannot be queried by their site
   # identifiers because of undesired characters that will cause the WQP
   # query to fail. For those sites, query WQP by adding a small bounding
   # box around the site(s) and including bBox in the wqp_args.
