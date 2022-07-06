@@ -101,8 +101,8 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
         sites_transformed <- x %>%
           sf::st_as_sf(coords=c("lon","lat"), crs = epsg_in) %>%
           sf::st_transform(epsg_out) %>%
-          mutate(lon_new = sf::st_coordinates(.)[,1],
-                 lat_new = sf::st_coordinates(.)[,2],
+          mutate(lon_new = as.numeric(sf::st_coordinates(.)[,1]),
+                 lat_new = as.numeric(sf::st_coordinates(.)[,2]),
                  datum_new = crs_out) %>%
           sf::st_drop_geometry() %>%
           select(-datum) %>%
@@ -156,8 +156,8 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
     sf::st_filter(y = sf::st_transform(aoi_sf, sf::st_crs(.)),
                   .predicate = st_is_within_distance,
                   dist = units::set_units(buffer_dist_m, m)) %>%
-    mutate(lon = sf::st_coordinates(.)[,1],
-           lat = sf::st_coordinates(.)[,2]) %>%
+    mutate(lon = as.numeric(sf::st_coordinates(.)[,1]),
+           lat = as.numeric(sf::st_coordinates(.)[,2])) %>%
     sf::st_drop_geometry() %>%
     select(c(any_of(names(wqp_inventory)), datum))
   
