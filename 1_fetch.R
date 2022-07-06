@@ -76,13 +76,17 @@ p1_targets_list <- list(
   # associated with target p1_wqp_data_aoi regarding the use of error = 'continue'.
   tar_target(
     p1_wqp_inventory,
+    {
     # inventory_wqp() requires grid and char_names as inputs, but users can 
     # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
-    # wqp_args. Below, wqp_args is defined in _targets.R. See documentation
-    # in 1_fetch/src/get_wqp_inventory.R for further details.
+    # wqp_args. See documentation in 1_fetch/src/get_wqp_inventory.R for further
+    # details. Below, wqp_args and last_forced_build are dependencies that get
+    # defined in _targets.R. 
+    last_forced_build
     inventory_wqp(grid = p1_global_grid_aoi,
                   char_names = p1_char_names,
-                  wqp_args = wqp_args),
+                  wqp_args = wqp_args)
+    },
     pattern = cross(p1_global_grid_aoi, p1_char_names),
     error = "continue"
   ),
