@@ -103,8 +103,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   sitecounts_grouped_out <- sitecounts_grouped_good_ids %>%
     bind_rows(sitecounts_grouped_bad_ids) %>%
     arrange(download_grp) %>%
-    mutate(site_n = row_number()) %>% 
-    select(site_id, lat, lon, datum, results_count, site_n, download_grp, pull_by_id)
+    select(site_id, lat, lon, datum, results_count, download_grp, pull_by_id) 
   
   return(sitecounts_grouped_out)
 
@@ -167,9 +166,8 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' 
 fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, max_tries = 3){
   
-  message(sprintf("Retrieving WQP data for sites %s:%s",
-                  min(site_counts_grouped$site_n), 
-                  max(site_counts_grouped$site_n)))
+  message(sprintf("Retrieving WQP data for %s sites in group %s",
+                  nrow(site_counts_grouped), unique(site_counts_grouped$download_grp)))
   
   # Define arguments for readWQPdata
   # sites with pull_by_id = FALSE cannot be queried by their site
