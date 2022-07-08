@@ -138,7 +138,7 @@ p1_targets_list <- list(
   tar_target(
     p1_wqp_data_aoi,
     fetch_wqp_data(p1_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
-    pattern = map(p1_site_counts_grouped),
+    pattern = cross(p1_site_counts_grouped, p1_char_names),
     error = "continue"
   ),
   
