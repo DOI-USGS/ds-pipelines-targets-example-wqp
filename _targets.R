@@ -4,7 +4,7 @@ options(tidyverse.quiet = TRUE)
 tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval', 
                             'sf', 'xml2', 'units', 'retry', 'MESS'))
 
-source("1_fetch.R")
+source("1_inventory.R")
 
 # Define the temporal extent of our data pull
 # set start_date or end_date to "" to query the earliest or latest available date

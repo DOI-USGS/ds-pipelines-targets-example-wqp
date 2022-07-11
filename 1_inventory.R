@@ -1,16 +1,16 @@
 # Source the functions that will be used to build the targets in p1_targets_list
-source("1_fetch/src/check_characteristics.R")
-source("1_fetch/src/create_grids.R")
-source("1_fetch/src/get_wqp_inventory.R")
-source("1_fetch/src/fetch_wqp_data.R")
-source("1_fetch/src/summarize_wqp_records.R")
+source("1_inventory/src/check_characteristics.R")
+source("1_inventory/src/create_grids.R")
+source("1_inventory/src/get_wqp_inventory.R")
+source("1_inventory/src/fetch_wqp_data.R")
+source("1_inventory/src/summarize_wqp_records.R")
 
 p1_targets_list <- list(
   
   # Get common parameter groups and WQP CharacteristicNames
   tar_target(
     p1_wqp_params_yml,
-    '1_fetch/cfg/wqp_codes.yml',
+    '1_inventory/cfg/wqp_codes.yml',
     format = "file"
   ),
   
@@ -29,14 +29,14 @@ p1_targets_list <- list(
   # parameter groups of interest
   tar_target(
     p1_similar_char_names_txt,
-    find_similar_characteristics(p1_char_names, param_groups_select, "1_fetch/out"),
+    find_similar_characteristics(p1_char_names, param_groups_select, "1_inventory/out"),
     format = "file"
   ),
   
   # Define the spatial area of interest (AOI) for the WQP data pull
   # This target could also be edited to read in coordinates from a local file
   # that contains the columns 'lon' and 'lat', e.g. replace data.frame() with 
-  # read_csv("1_fetch/in/my_sites.csv"). See README for an example of how to 
+  # read_csv("1_inventory/in/my_sites.csv"). See README for an example of how to 
   # use a shapefile to define the AOI.
   tar_target(
     p1_AOI,
@@ -79,7 +79,7 @@ p1_targets_list <- list(
     {
     # inventory_wqp() requires grid and char_names as inputs, but users can 
     # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
-    # wqp_args. See documentation in 1_fetch/src/get_wqp_inventory.R for further
+    # wqp_args. See documentation in 1_inventory/src/get_wqp_inventory.R for further
     # details. Below, wqp_args and last_forced_build are dependencies that get
     # defined in _targets.R. 
     last_forced_build
@@ -100,7 +100,7 @@ p1_targets_list <- list(
   # Summarize the data that would come back from the WQP
   tar_target(
     p1_wqp_inventory_summary_csv,
-    summarize_wqp_inventory(p1_wqp_inventory_aoi, "1_fetch/log/summary_wqp_inventory.csv"),
+    summarize_wqp_inventory(p1_wqp_inventory_aoi, "1_inventory/log/summary_wqp_inventory.csv"),
     format = "file"
   ),
   
@@ -147,7 +147,7 @@ p1_targets_list <- list(
   tar_target(
     p1_wqp_data_summary_csv,
     summarize_wqp_data(p1_wqp_inventory_summary_csv, p1_wqp_data_aoi, 
-                       "1_fetch/log/summary_wqp_data.csv"),
+                       "1_inventory/log/summary_wqp_data.csv"),
     format = "file"
   )
 
