@@ -160,14 +160,20 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' for more information.  
 #' @param max_tries integer, maximum number of attempts if the data download 
 #' step returns an error. Defaults to 3.
+#' @param verbose logical, indicates whether messages from dataRetrieval should 
+#' be printed to the console in the event that a query returns no data. Defaults 
+#' to FALSE. Note that `verbose` only handles messages, and dataRetrieval errors 
+#' or warnings will still get passed up to `fetch_wqp_data`. 
 #' 
 #' @return returns a data frame containing data downloaded from the Water Quality Portal, 
 #' where each row represents a unique data record. 
 #' 
-fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, max_tries = 3){
+fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, 
+                           max_tries = 3, verbose = FALSE){
   
-  message(sprintf("Retrieving WQP data for %s sites in group %s",
-                  nrow(site_counts_grouped), unique(site_counts_grouped$download_grp)))
+  message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
+                  nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
+                  characteristics))
   
   # Define arguments for readWQPdata
   # sites with pull_by_id = FALSE cannot be queried by their site
@@ -184,11 +190,22 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                            characteristicName = c(characteristics)))
   }
   
-  # Pull data, retrying up to the number of times indicated by `max_tries`
-  wqp_data <- retry::retry(dataRetrieval::readWQPdata(wqp_args_all),
-                           when = "Error:", 
-                           max_tries = max_tries)
+  # Define function to pull data, retrying up to the number of times
+  # indicated by `max_tries`
+  pull_data <- function(x){
+    retry::retry(dataRetrieval::readWQPdata(x),
+                 when = "Error:", 
+                 max_tries = max_tries)
+  }
   
+  # Now pull the data. If verbose == TRUE, print all messages from dataRetrieval,
+  # otherwise, suppress messages.
+  if(verbose) {
+    wqp_data <- pull_data(wqp_args_all)
+  } else {
+    wqp_data <- suppressMessages(pull_data(wqp_args_all))
+  }
+
   # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped
   # in case our bounding box approach picked up any additional, undesired sites. 

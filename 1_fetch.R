@@ -126,19 +126,20 @@ p1_targets_list <- list(
 
   # Map over groups of sites to download data.
   # Note that because error = 'continue', {targets} will attempt to build all 
-  # of the "branches" represented in p1_site_counts_grouped, even if one branch 
-  # returns an error. This way, we will not need to re-build branches that have
-  # already run successfully. However, if a branch fails, {targets} will throw
-  # an error reading `could not load dependencies of [immediate downstream target]. invalid 
-  # 'description' argument` because it cannot merge the individual branches and so did not  
-  # complete the branching target. The error(s) associated with the failed branch will therefore 
-  # need to be resolved before the full target can be successfully built. A 
-  # common reason a branch may fail is due to WQP timeout errors. Timeout errors 
-  # can sometimes be resolved by waiting a few hours and retrying tar_make().
+  # of the "branches" represented by each unique combination of characteristic 
+  # name and download group, even if one branch returns an error. This way, 
+  # we will not need to re-build branches that have already run successfully. 
+  # However, if a branch fails, {targets} will throw an error reading `could
+  # not load dependencies of [immediate downstream target]. invalid 'description'
+  # argument` because it cannot merge the individual branches and so did not  
+  # complete the branching target. The error(s) associated with the failed branch 
+  # will therefore need to be resolved before the full target can be successfully 
+  # built. A common reason a branch may fail is due to WQP timeout errors. Timeout 
+  # errors can sometimes be resolved by waiting a few hours and retrying tar_make().
   tar_target(
     p1_wqp_data_aoi,
     fetch_wqp_data(p1_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
-    pattern = map(p1_site_counts_grouped),
+    pattern = cross(p1_site_counts_grouped, p1_char_names),
     error = "continue"
   ),
   
