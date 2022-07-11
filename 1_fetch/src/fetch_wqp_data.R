@@ -171,8 +171,9 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, 
                            max_tries = 3, verbose = FALSE){
   
-  message(sprintf("Retrieving WQP data for %s sites in group %s",
-                  nrow(site_counts_grouped), unique(site_counts_grouped$download_grp)))
+  message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
+                  nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
+                  characteristics))
   
   # Define arguments for readWQPdata
   # sites with pull_by_id = FALSE cannot be queried by their site
@@ -204,11 +205,13 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
     pull_data(wqp_args_all)
     },
     message = function(msg) {
-      messages <<- c(messages, msg)
-      tryInvokeRestart('muffleMessage')
+      messages <<- c(messages, msg$message)
+      if(startsWith(conditionMessage(msg), "The following url returned no data")|
+         startsWith(conditionMessage(msg), "https://")){
+        invokeRestart('muffleMessage')}
     })
   if(verbose) message(messages)
-  
+
   # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped
   # in case our bounding box approach picked up any additional, undesired sites. 
