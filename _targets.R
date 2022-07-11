@@ -4,7 +4,8 @@ options(tidyverse.quiet = TRUE)
 tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval', 
                             'sf', 'xml2', 'units', 'retry', 'MESS'))
 
-source("1_fetch.R")
+source("1_inventory.R")
+source("2_download.R")
 
 # Define the temporal extent of our data pull
 # set start_date or end_date to "" to query the earliest or latest available date
@@ -12,7 +13,7 @@ start_date <- "2000-01-01"
 end_date <- "2020-12-31" 
 
 # Define which parameter groups (and CharacteristicNames) to return from WQP 
-# options for parameter groups are represented in first level of 1_fetch/cfg/wqp_codes.yml
+# options for parameter groups are represented in first level of 1_inventory/cfg/wqp_codes.yml
 param_groups_select <- c('temperature','conductivity')
 
 # Specify coordinates that define the spatial area of interest
@@ -41,6 +42,6 @@ wqp_args <- list(sampleMedia = c("Water","water"),
 last_forced_build <- "2022-07-01"
 
 # Return the complete list of targets
-c(p1_targets_list)
+c(p1_targets_list, p2_targets_list)
 
 

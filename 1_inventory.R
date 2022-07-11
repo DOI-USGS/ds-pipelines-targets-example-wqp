@@ -1,16 +1,15 @@
 # Source the functions that will be used to build the targets in p1_targets_list
-source("1_fetch/src/check_characteristics.R")
-source("1_fetch/src/create_grids.R")
-source("1_fetch/src/get_wqp_inventory.R")
-source("1_fetch/src/fetch_wqp_data.R")
-source("1_fetch/src/summarize_wqp_records.R")
+source("1_inventory/src/check_characteristics.R")
+source("1_inventory/src/create_grids.R")
+source("1_inventory/src/get_wqp_inventory.R")
+source("1_inventory/src/summarize_wqp_records.R")
 
 p1_targets_list <- list(
   
   # Get common parameter groups and WQP CharacteristicNames
   tar_target(
     p1_wqp_params_yml,
-    '1_fetch/cfg/wqp_codes.yml',
+    '1_inventory/cfg/wqp_codes.yml',
     format = "file"
   ),
   
@@ -29,14 +28,14 @@ p1_targets_list <- list(
   # parameter groups of interest
   tar_target(
     p1_similar_char_names_txt,
-    find_similar_characteristics(p1_char_names, param_groups_select, "1_fetch/out"),
+    find_similar_characteristics(p1_char_names, param_groups_select, "1_inventory/out"),
     format = "file"
   ),
   
   # Define the spatial area of interest (AOI) for the WQP data pull
   # This target could also be edited to read in coordinates from a local file
   # that contains the columns 'lon' and 'lat', e.g. replace data.frame() with 
-  # read_csv("1_fetch/in/my_sites.csv"). See README for an example of how to 
+  # read_csv("1_inventory/in/my_sites.csv"). See README for an example of how to 
   # use a shapefile to define the AOI.
   tar_target(
     p1_AOI,
@@ -72,14 +71,14 @@ p1_targets_list <- list(
   # the area of interest. To prevent timeout issues that result from large data 
   # requests, use {targets} dynamic branching capabilities to map the function 
   # inventory_wqp() over each grid within p1_global_grid_aoi. {targets} will then
-  # combine all of the grid-scale inventories into one table. See comments below
-  # associated with target p1_wqp_data_aoi regarding the use of error = 'continue'.
+  # combine all of the grid-scale inventories into one table. See comments above
+  # target p2_wqp_data_aoi (in 2_download.R) regarding the use of error = 'continue'.
   tar_target(
     p1_wqp_inventory,
     {
     # inventory_wqp() requires grid and char_names as inputs, but users can 
     # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
-    # wqp_args. See documentation in 1_fetch/src/get_wqp_inventory.R for further
+    # wqp_args. See documentation in 1_inventory/src/get_wqp_inventory.R for further
     # details. Below, wqp_args and last_forced_build are dependencies that get
     # defined in _targets.R. 
     last_forced_build
@@ -100,54 +99,7 @@ p1_targets_list <- list(
   # Summarize the data that would come back from the WQP
   tar_target(
     p1_wqp_inventory_summary_csv,
-    summarize_wqp_inventory(p1_wqp_inventory_aoi, "1_fetch/log/summary_wqp_inventory.csv"),
-    format = "file"
-  ),
-  
-  # Pull site id's and total number of records for each site from the WQP inventory
-  tar_target(
-    p1_site_counts,
-    p1_wqp_inventory_aoi %>%
-      group_by(MonitoringLocationIdentifier, lon, lat, datum, grid_id) %>%
-      summarize(results_count = sum(resultCount, na.rm = TRUE),
-                .groups = 'drop')
-  ),
-  
-  # Group the sites into reasonably sized chunks for downloading data 
-  tar_target(
-    p1_site_counts_grouped,
-    add_download_groups(p1_site_counts, 
-                        max_sites = 500,
-                        max_results = 250000) %>%
-      group_by(download_grp) %>%
-      tar_group(),
-    iteration = "group"
-  ),
-
-  # Map over groups of sites to download data.
-  # Note that because error = 'continue', {targets} will attempt to build all 
-  # of the "branches" represented by each unique combination of characteristic 
-  # name and download group, even if one branch returns an error. This way, 
-  # we will not need to re-build branches that have already run successfully. 
-  # However, if a branch fails, {targets} will throw an error reading `could
-  # not load dependencies of [immediate downstream target]. invalid 'description'
-  # argument` because it cannot merge the individual branches and so did not  
-  # complete the branching target. The error(s) associated with the failed branch 
-  # will therefore need to be resolved before the full target can be successfully 
-  # built. A common reason a branch may fail is due to WQP timeout errors. Timeout 
-  # errors can sometimes be resolved by waiting a few hours and retrying tar_make().
-  tar_target(
-    p1_wqp_data_aoi,
-    fetch_wqp_data(p1_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
-    pattern = cross(p1_site_counts_grouped, p1_char_names),
-    error = "continue"
-  ),
-  
-  # Summarize the data downloaded from the WQP
-  tar_target(
-    p1_wqp_data_summary_csv,
-    summarize_wqp_data(p1_wqp_inventory_summary_csv, p1_wqp_data_aoi, 
-                       "1_fetch/log/summary_wqp_data.csv"),
+    summarize_wqp_inventory(p1_wqp_inventory_aoi, "1_inventory/log/summary_wqp_inventory.csv"),
     format = "file"
   )
 

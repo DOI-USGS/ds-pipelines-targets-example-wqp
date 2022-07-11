@@ -19,7 +19,7 @@ We could also use existing watershed boundaries or another polygon from an exter
     {
       # mode is a character string indicating the mode used to write the file; see 
       # ??utils::download.file for details.
-      fileout <- "1_fetch/out/drbbnd.zip"
+      fileout <- "1_inventory/out/drbbnd.zip"
       utils::download.file("https://www.state.nj.us/drbc/library/documents/GIS/drbbnd.zip",
                   destfile = fileout, 
                   mode = "wb", quiet = TRUE)
