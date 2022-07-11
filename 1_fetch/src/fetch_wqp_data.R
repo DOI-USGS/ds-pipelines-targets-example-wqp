@@ -198,19 +198,13 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
                  max_tries = max_tries)
   }
   
-  # Now pull the data. Capture messages returned from the call to readWQPdata. 
-  # If verbose == TRUE, print all captured messages.
-  messages <- list()
-  wqp_data <- withCallingHandlers({
-    pull_data(wqp_args_all)
-    },
-    message = function(msg) {
-      messages <<- c(messages, msg$message)
-      if(startsWith(conditionMessage(msg), "The following url returned no data")|
-         startsWith(conditionMessage(msg), "https://")){
-        invokeRestart('muffleMessage')}
-    })
-  if(verbose) message(messages)
+  # Now pull the data. If verbose == TRUE, print all messages from dataRetrieval,
+  # otherwise, suppress messages.
+  if(verbose) {
+    wqp_data <- pull_data(wqp_args_all)
+  } else {
+    wqp_data <- suppressMessages(pull_data(wqp_args_all))
+  }
 
   # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped
