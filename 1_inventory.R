@@ -6,26 +6,29 @@ source("1_inventory/src/summarize_wqp_records.R")
 
 p1_targets_list <- list(
   
-  # Get common parameter groups and WQP CharacteristicNames
+  # Track yml file containing common parameter groups and WQP characteristic names
+  # If {targets} detects a change in the yml file, it will re-build all downstream
+  # targets that depend on p1_wqp_params_yml.
   tar_target(
     p1_wqp_params_yml,
     '1_inventory/cfg/wqp_codes.yml',
     format = "file"
   ),
   
+  # Load yml file containing common parameters groups and WQP characteristic names
   tar_target(
     p1_wqp_params,
     yaml::read_yaml(p1_wqp_params_yml) 
   ),
   
-  # Get a vector of WQP characteristicNames to match parameter groups of interest
+  # Get a vector of WQP characteristic names to match parameter groups of interest
   tar_target(
     p1_char_names,
     filter_characteristics(p1_wqp_params, param_groups_select)
   ),
   
-  # Save log file containing WQP characteristic names that are similar to the
-  # parameter groups of interest
+  # Save output file(s) containing WQP characteristic names that are similar to the
+  # parameter groups of interest.
   tar_target(
     p1_similar_char_names_txt,
     find_similar_characteristics(p1_char_names, param_groups_select, "1_inventory/out"),
@@ -47,7 +50,7 @@ p1_targets_list <- list(
   tar_target(
     p1_AOI_sf,
     sf::st_as_sf(p1_AOI, coords = c("lon","lat"), crs = 4326) %>%
-      summarize(geometry = st_combine(geometry)) %>%
+      summarize(geometry = sf::st_combine(geometry)) %>%
       sf::st_cast("POLYGON")
   ),
   
@@ -60,8 +63,7 @@ p1_targets_list <- list(
   ),
   
   # Use spatial subsetting to find boxes that overlap the area of interest
-  # (i.e., are within dist_m of p1_AOI_sf). These boxes will be used to
-  # query the WQP.
+  # These boxes will be used to query the WQP.
   tar_target(
     p1_global_grid_aoi,
     subset_grids_to_aoi(p1_global_grid, p1_AOI_sf)

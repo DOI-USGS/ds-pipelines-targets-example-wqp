@@ -12,8 +12,13 @@ source("2_download.R")
 start_date <- "2000-01-01"
 end_date <- "2020-12-31" 
 
-# Define which parameter groups (and CharacteristicNames) to return from WQP 
-# options for parameter groups are represented in first level of 1_inventory/cfg/wqp_codes.yml
+# Define which parameter groups (and CharacteristicNames) to return from WQP. 
+# Different options for parameter groups are represented in the first level of 
+# 1_inventory/cfg/wqp_codes.yml. This yml file is meant to provide a starting
+# place for an analysis and does not represent a definitive list of characteristic
+# names. Which characteristic names to include for any given parameter group may
+# change depending on the user or application, so the yml file can be edited to 
+# omit characteristic names or include others.
 param_groups_select <- c('temperature','conductivity')
 
 # Specify coordinates that define the spatial area of interest
