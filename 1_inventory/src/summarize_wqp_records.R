@@ -1,8 +1,8 @@
-#' Function to summarize the expected number of sites and samples to be returned
-#' from the WQP for the area of interest
+#' Function to summarize the expected number of sites and records that would be 
+#' returned from the WQP for the area of interest
 #'
 #' @param wqp_inventory data frame containing sites returned from the WQP inventory,
-#' with one row per site; contains columns CharacteristicName and resultCount.
+#' with one row per site; must contain columns CharacteristicName and resultCount.
 #' @param fileout character string indicating the name of the saved file, including
 #' file path and extension.
 #' 
@@ -27,12 +27,12 @@ summarize_wqp_inventory <- function(wqp_inventory, fileout){
 #' Summarize data downloaded from the Water Quality Portal
 #' 
 #' @description Function to summarize the data downloaded from the WQP and 
-#' compare with the number of sites and samples that were expected based on 
+#' compare with the number of sites and records that were expected based on 
 #' the WQP inventory.
 #' 
 #' @param wqp_inventory_summary_csv character string indicating the name of the saved 
 #' inventory summary file, including file path and extension.
-#' @param wqp_data data frame containing the output from fetch_wqp_data; contains 
+#' @param wqp_data data frame containing the output from fetch_wqp_data(); contains 
 #' data downloaded from the WQP, where each row represents a unique data record.
 #' @param fileout character string indicating the name of the saved file, including
 #' file path and extension.

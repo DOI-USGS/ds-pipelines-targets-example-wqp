@@ -51,15 +51,14 @@ create_global_grid <- function(cellsize = c(2,2)){
 #' Subset grid to AOI
 #' 
 #' @description Function to spatially subset a holistic grid of boxes
-#' to find the boxes that overlap the area of interest. The area of 
-#' interest is buffered to ensure that all overlapping boxes are returned.
+#' to find the boxes that overlap the area of interest. 
 #' 
 #' @param grid sf polygon object containing the geometries and an attribute 
 #' id for each box within the grid.
 #' @param aoi_sf sf polygon object representing the area of interest
 #' @param buffer_dist_m integer; grid geometries will be returned if distances 
 #' between the grid polygons and the aoi polygon are smaller or equal to this value.
-#' Defaults to 0 meters, although users may adjust the distance.
+#' Defaults to 0 meters, although users may increase the buffer distance.
 #' 
 #' @value returns an sf polygon object containing the geometries for each box 
 #' within the holistic grid that overlaps the buffered area of interest.

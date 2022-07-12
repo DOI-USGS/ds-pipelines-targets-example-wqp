@@ -43,12 +43,13 @@ check_valid_characteristics <- function(chars) {
 #' general configuration file to only include the selected parameter groups of 
 #' interest for the data pull. 
 #' 
-#' @param wqp_params list containing data frames corresponding to various parameter
-#' groups of interest. Each parameter data frame contains a vector of character
-#' strings representing known WQP characteristic names associated with each 
-#' parameter. 
-#' @param param_groups_select character string indicating what parameter groups will
-#' be used for the WQP data pull.
+#' @param wqp_params list containing data frames corresponding to various 
+#' parameter groups of interest. Each element of the list is a named vector 
+#' that contains the character strings representing known WQP characteristic 
+#' names associated with each parameter. 
+#' @param param_groups_select character string indicating what parameter groups 
+#' will be used for the WQP data pull. Parameter strings should match the vector
+#' names in `wqp_params`.
 #' 
 filter_characteristics <- function(wqp_params, param_groups_select){
   
@@ -96,7 +97,8 @@ find_similar_characteristics <- function(characteristics_select, param_groups_se
     matched_chars_not_selected <- matched_chars[!matched_chars %in% characteristics_select]
     
     header_selected <- "The following characteristics are already included in the WQP codes cfg file: "
-    header_not_selected <- "The following characteristics might be relevant to the selected parameter and are not included in the WQP codes cfg file: "
+    header_not_selected <- paste0("The following characteristics might be relevant to the selected ",
+                                  "parameter and are not included in the WQP codes cfg file: ")
     out_file <- paste0(save_dir,"/wqp_characteristics_",x,".txt")
     writeLines(c(header_selected,matched_chars_selected,"\n",
                  header_not_selected, matched_chars_not_selected),

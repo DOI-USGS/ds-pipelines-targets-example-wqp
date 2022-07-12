@@ -63,7 +63,7 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
 
 #' Function to transform WQP sites to use a consistent coordinate reference system
 #'
-#' @param sites data frame containing sites returned from the WQP query; contains
+#' @param sites data frame containing sites returned from the WQP query; must contain
 #' columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
 #' @param crs_out character string indicating the desired output coordinate reference
 #' system (crs); options include "NAD83" or "WGS84", defaults to "WGS84"
@@ -75,6 +75,10 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
 transform_site_locations <- function(sites, crs_out = "WGS84"){
   
   message("Attempting to harmonize different site CRS...")
+  
+  # Check that crs_out is one of two allowable entries
+  if(!crs_out %in% c("WGS84","NAD83"))
+    stop("crs_out must be either 'WGS84' or 'NAD83'")
   
   # Define EPSG code for output data frame 
   epsg_out <- case_when(crs_out == "NAD83" ~ 4269,
@@ -110,7 +114,7 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
       } else {
         sites_transformed <- x
         message(sprintf("Unable to transform sites with datum = %s; returning sites untransformed",
-                        x$datum[1]))
+                        unique(x$datum)))
       }
       return(sites_transformed)
     }) %>%
@@ -129,7 +133,7 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
 #' outside of the area of interest
 #' 
 #' @param wqp_inventory data frame containing sites returned from the WQP query; 
-#' contains columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
+#' must contain columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
 #' @param aoi_sf sf object representing the area of interest
 #' @param buffer_dist_m integer reflecting a desired buffer distance (in meters) around
 #' the area of interest; if a site is within buffer_dist_m of aoi_sf, retain that site.
@@ -146,7 +150,7 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
                                                coords = c("lon","lat"), crs = 4326) 
   
   # Filter wqp inventory to only include sites within area of interest + some user-specified 
-  # distance to ensure we retain all sites within the AOI. 
+  # buffer distance to ensure we retain all sites within the AOI. 
   # Note that the workflow below is similar to one where we would draw a buffer around the 
   # AOI and then use sf::st_intersects to find the points that intersect the AOI polygon. 
   # st_is_within_distance is used here instead because buffers created using the s2 engine
@@ -154,7 +158,7 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   # post by the sf maintainers: https://r-spatial.github.io/sf/articles/sf7.html#buffers-1
   queried_sites_aoi <- queried_sites_transformed_sf %>%
     sf::st_filter(y = sf::st_transform(aoi_sf, sf::st_crs(.)),
-                  .predicate = st_is_within_distance,
+                  .predicate = sf::st_is_within_distance,
                   dist = units::set_units(buffer_dist_m, m)) %>%
     mutate(lon = as.numeric(sf::st_coordinates(.)[,1]),
            lat = as.numeric(sf::st_coordinates(.)[,2])) %>%
