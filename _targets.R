@@ -35,17 +35,6 @@ wqp_args <- list(sampleMedia = c("Water","water"),
                  startDateLo = start_date,
                  startDateHi = end_date)
 
-# [Optional] variable that can be edited to force rebuild of the data inventory.
-# Leaving as is will use the pipeline's built-in behavior to only re-inventory 
-# data for subsets of the input data that have changed, for example, if the area
-# of interest were expanded and now spans more grids. If using `last_forced_build`
-# below, be aware that downstream pipeline steps, including data download and
-# harmonization, would also re-build IF the inventory outputs change compared to 
-# their previous state. Therefore, editing this variable does not guarantee that 
-# updated values will be downloaded from WQP if the inventory, including site ids 
-# and number of records, has not changed from the previous build. 
-last_forced_build <- "2022-07-01"
-
 # Return the complete list of targets
 c(p1_targets_list, p2_targets_list)
 

@@ -60,6 +60,45 @@ This workflow comes with a configuration file containing common water quality pa
 ### Changing the date range
 Customize the temporal extent of the WQP data pull by editing the variables `start_date` and `end_date` in `_targets.R`. Queries can accept `start_date` and `end_date` in `"YYYY-MM-DD"` format, or can be set to `""` to request the earliest or latest available dates, respectively. 
 
+### Forcing a rebuild of the data inventory
+`targets` automates workflows by only re-running code when necessary, and skips over targets that are considered up to date. A target is considered out of date if its upstream dependencies have changed, which will trigger a rebuild of that target. The pipeline's built-in behavior is to only re-inventory WQP data for subsets of the input data that have changed. For example, if the area of interest were expanded and now spans more grid cells, `targets` would build the branches of `p1_wqp_inventory` associated with the new grids, but would not rebuild existing branches that were built previously. Efficient rebuilds save time by avoiding situations where we rerun the same code many times, either because we lost track of whether a code step has already been run, or because we made a small change to the input data.
+
+If you want to _force_ a rebuild of the entire data inventory, however, we outline two ways to do that. First, you can delete metadata records and "invalidate" a target using `tar_invalidate()`. Invalidating a target will trigger a fresh build of that target, and will also cause all downstream targets to appear out of date, leading `targets` to rebuild those downstream targets as well. 
+
+```r
+tar_invalidate(p1_wqp_inventory)
+```
+
+Second, you could add an additional dependency to `p1_wqp_inventory` (e.g., `last_forced_build` below). In the example code below, `last_forced_build` is defined with the other pipeline variables in `_targets.R` and if updated, `p1_wqp_inventory` would be considered out of date, triggering a rebuild of the inventory target. 
+
+```r
+# In _targets.R:
+
+# [Optional] variable that can be edited to force rebuild of the data inventory.
+last_forced_build <- "2022-07-01"
+```
+
+```r
+# In 1_inventory.R:
+    
+  p1_wqp_inventory,
+  {
+    # inventory_wqp() requires grid and char_names as inputs, but users can 
+    # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
+    # wqp_args. See documentation in 1_inventory/src/get_wqp_inventory.R for further
+    # details. Below, wqp_args and last_forced_build are dependencies that get
+    # defined in _targets.R. 
+    last_forced_build
+    inventory_wqp(grid = p1_global_grid_aoi,
+                  char_names = p1_char_names,
+                  wqp_args = wqp_args)
+    },
+    pattern = cross(p1_global_grid_aoi, p1_char_names),
+    error = "continue"
+  ),
+```
+If using this `last_forced_build` option, be aware that downstream pipeline steps, including data download and harmonization, would get rebuilt only IF the inventory outputs change compared to their previous state. Therefore, using and editing this variable does not guarantee that updated values will be downloaded from WQP if the inventory, including site ids and number of records, has not changed from the previous build.
+
 ## Comments on pipeline design 
 This data pipeline is built around the central idea that smaller queries to the WQP are more likely to succeed and therefore, most workflows that pull WQP data would benefit from dividing larger requests into smaller ones. There are many different ways we could have gone about grouping or "chunking" data queries. We use `targets` ["branching"](https://books.ropensci.org/targets/dynamic.html) capabilities to apply (or _map_) our data inventory and download functions over discrete spatial units represented by grids that overlap our area of interest. Another valid approach would have been to generate `targets` branches over units of time, which might work well for applications where we have a defined spatial extent and just want to update the data from time to time. In this pipeline we opted to divide our queries by spatial units so that the pipeline can be readily scaled to the area of interest and because different contributors may add data to WQP at different lags, making it difficult to know when older data are considered "current."
 

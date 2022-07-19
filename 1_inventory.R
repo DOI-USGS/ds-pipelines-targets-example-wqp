@@ -80,10 +80,8 @@ p1_targets_list <- list(
     {
     # inventory_wqp() requires grid and char_names as inputs, but users can 
     # also pass additional arguments to WQP, e.g. sampleMedia or siteType, using 
-    # wqp_args. See documentation in 1_inventory/src/get_wqp_inventory.R for further
-    # details. Below, wqp_args and last_forced_build are dependencies that get
-    # defined in _targets.R. 
-    last_forced_build
+    # wqp_args. Below, wqp_args is defined in _targets.R. See documentation
+    # in 1_fetch/src/get_wqp_inventory.R for further details.
     inventory_wqp(grid = p1_global_grid_aoi,
                   char_names = p1_char_names,
                   wqp_args = wqp_args)
