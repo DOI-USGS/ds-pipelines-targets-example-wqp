@@ -54,6 +54,12 @@ We could also use existing watershed boundaries or another polygon from an exter
   ),
 ```
 
+### Changing the parameter list
+This workflow comes with a configuration file containing common water quality parameter groups and associated WQP characteristic names ("1_inventory/cfg_wqp_codes.yml"). This configuration file is meant to provide a starting place for an analysis and does not represent a definitive list of characteristic names. The yml file can be edited to omit certain characteristic names or include others, however, it's recommended to leave the top-level parameter names as is to avoid downstream impacts to the code within the "3_harmonize" phase of the pipeline.
+
+### Changing the date range
+Customize the temporal extent of the WQP data pull by editing the variables `start_date` and `end_date` in `_targets.R`. Queries can accept `start_date` and `end_date` in `"YYYY-MM-DD"` format, or can be set to `""` to request the earliest or latest available dates, respectively. 
+
 ## Comments on pipeline design 
 This data pipeline is built around the central idea that smaller queries to the WQP are more likely to succeed and therefore, most workflows that pull WQP data would benefit from dividing larger requests into smaller ones. There are many different ways we could have gone about grouping or "chunking" data queries. We use `targets` ["branching"](https://books.ropensci.org/targets/dynamic.html) capabilities to apply (or _map_) our data inventory and download functions over discrete spatial units represented by grids that overlap our area of interest. Another valid approach would have been to generate `targets` branches over units of time, which might work well for applications where we have a defined spatial extent and just want to update the data from time to time. In this pipeline we opted to divide our queries by spatial units so that the pipeline can be readily scaled to the area of interest and because different contributors may add data to WQP at different lags, making it difficult to know when older data are considered "current."
 
