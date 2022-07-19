@@ -86,23 +86,3 @@ subset_grids_to_aoi <- function(grid, aoi_sf, buffer_dist_m = 0){
   
 }
 
-
-
-#' Return bounding box as a vector
-#' 
-#' @description Function to find the bounding box for an sf object(s) and return
-#' as a vector
-#' 
-#' @param grid sf polygon object containing the geometries and an attribute
-#' id for each box within the grid
-#' 
-return_bbox <- function(grid){
-  
-  bbox <- lapply(sf::st_geometry(grid), sf::st_bbox) %>% 
-    setNames(grid$id)
-  
-  return(bbox)
-  
-}
-
-
