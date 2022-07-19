@@ -14,9 +14,13 @@
 #' 
 #' @value returns a data frame containing sites available from the Water Quality Portal
 #' 
-#' @example inventory_wqp(aoi_bbox, "Conductivity", wqp_args = list(siteType = "Stream"))
-#' @example inventory_wqp(aoi_bbox, "Temperature", wqp_args = list(siteType = "Lake, Reservoir, Impoundment"))
-#' 
+#' @examples 
+#' aoi <- sf::st_as_sf(data.frame(lon = c(-77.063, -75.333, -75.437), 
+#'                                     lat = c(40.547, 41.029, 39.880)), 
+#'                          coords = c("lon", "lat"), crs = 4326) 
+#' inventory_wqp(aoi, "Conductivity", wqp_args = list(siteType = "Stream"))
+#' inventory_wqp(aoi, "Temperature, water", 
+#'               wqp_args = list(siteType = "Lake, Reservoir, Impoundment"))
 #' explicitly load and attach sf package to handle geometry data in `grid`
 library(sf)
 
@@ -69,6 +73,9 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
 #' system (crs); options include "NAD83" or "WGS84", defaults to "WGS84"
 #'
 #' @examples
+#' sites <- data.frame(lon = c(-74.62238, -74.94351, -75.25741), 
+#'                     lat = c(39.79456, 39.31011, 39.52289),
+#'                     HorizontalCoordinateReferenceSystemDatumName = rep('NAD83', 3))
 #' transform_site_locations(sites)
 #' transform_site_locations(sites, "NAD83")
 #' 
