@@ -1,4 +1,4 @@
-CharacteristicName,sites_count,results_count
+CharacteristicName,n_sites,n_records
 Conductivity,4,7
 Specific conductance,494,11438
 "Specific Conductance, Calculated/Measured Ratio",2,48
