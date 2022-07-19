@@ -42,15 +42,16 @@ We could also use existing watershed boundaries or another polygon from an exter
     format = "file"
   ),
 
-# Unzip the shapefile and read in as an sf object
-tar_target(
-    p1_shp_sf,
+# Unzip the shapefile and read in as an sf polygon object
+  tar_target(
+    p1_AOI_sf,
     {
       savedir <- tools::file_path_sans_ext(p1_shp_zip)
       unzip(zipfile = p1_shp_zip, exdir = savedir, overwrite = TRUE)
-      sf::st_read(paste0(savedir,"/drb_bnd_arc.shp"), quiet = TRUE)
+      sf::st_read(paste0(savedir,"/drb_bnd_arc.shp"), quiet = TRUE) %>%
+        sf::st_cast(.,"POLYGON")
     }
-)
+  ),
 ```
 
 ## Comments on pipeline design 
