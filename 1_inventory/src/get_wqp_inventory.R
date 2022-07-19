@@ -1,18 +1,21 @@
-#' Inventory WQP within boxes that overlap area of interest
+#' @title Inventory available data from the Water Quality Portal (WQP)
 #' 
-#' @description Function to inventory WQP sites and observations within grids
-#' that overlap the area of interest
+#' @description 
+#' Function to inventory WQP sites and records within grid cells that overlap
+#' the area of interest.
 #'  
-#' @param grid sf object representing the area over which to query the WQP
+#' @param grid sf object representing the area over which to query the WQP.
 #' @param char_names character string or list of character strings indicating 
-#' the WQP CharacteristicNames to query
+#' which WQP characteristic names to query.
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.  
 #' @param max_tries integer, maximum number of attempts if the data download 
 #' step returns an error. Defaults to 3.
 #' 
-#' @value returns a data frame containing sites available from the Water Quality Portal
+#' @returns 
+#' Returns a data frame with a row for each site within the Water Quality 
+#' Portal. Columns contain site information and record counts.
 #' 
 #' @examples 
 #' aoi <- sf::st_as_sf(data.frame(lon = c(-77.063, -75.333, -75.437), 
@@ -21,7 +24,8 @@
 #' inventory_wqp(aoi, "Conductivity", wqp_args = list(siteType = "Stream"))
 #' inventory_wqp(aoi, "Temperature, water", 
 #'               wqp_args = list(siteType = "Lake, Reservoir, Impoundment"))
-#' explicitly load and attach sf package to handle geometry data in `grid`
+#'
+# explicitly load and attach sf package to handle geometry data in `grid`
 library(sf)
 
 inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
@@ -65,12 +69,20 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
 
 
 
-#' Function to transform WQP sites to use a consistent coordinate reference system
+#' @title Transform site coordinates
+#' 
+#' @description
+#' Function to transform WQP sites to use a consistent coordinate reference system.
 #'
-#' @param sites data frame containing sites returned from the WQP query; must contain
-#' columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
-#' @param crs_out character string indicating the desired output coordinate reference
-#' system (crs); options include "NAD83" or "WGS84", defaults to "WGS84"
+#' @param sites data frame containing sites returned from the WQP query; must
+#' contain columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
+#' @param crs_out character string indicating the desired output coordinate 
+#' reference system (crs). Options include "NAD83" or "WGS84", defaults to "WGS84".
+#' 
+#' @returns 
+#' Returns a data frame containing the transformed site coordinates in columns
+#' "lon" and "lat" and the new, harmonized crs is indicated by the column "datum". 
+#' All other columns in `sites` are retained. 
 #'
 #' @examples
 #' sites <- data.frame(lon = c(-74.62238, -74.94351, -75.25741), 
@@ -117,7 +129,7 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
                  datum_new = crs_out) %>%
           sf::st_drop_geometry() %>%
           select(-datum) %>%
-          rename("lon"="lon_new", "lat"="lat_new", "datum"="datum_new")
+          rename("lon" = "lon_new", "lat" = "lat_new", "datum" = "datum_new")
       } else {
         sites_transformed <- x
         message(sprintf("Unable to transform sites with datum = %s; returning sites untransformed",
@@ -134,20 +146,23 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
 
 
 
-#' Subset WQP inventory by the area of interest polygon
+#' @title Subset WQP inventory to the area of interest
 #' 
-#' @description Function to filter out any sites in the WQP inventory that are
-#' outside of the area of interest
+#' @description 
+#' Function to filter out any sites in the WQP inventory that are
+#' outside of the area of interest polygon. 
 #' 
 #' @param wqp_inventory data frame containing sites returned from the WQP query; 
 #' must contain columns lon, lat, and HorizontalCoordinateReferenceSystemDatumName.
-#' @param aoi_sf sf object representing the area of interest
-#' @param buffer_dist_m integer reflecting a desired buffer distance (in meters) around
-#' the area of interest; if a site is within buffer_dist_m of aoi_sf, retain that site.
-#' Defaults to 0 meters. 
+#' @param aoi_sf sf polygon object representing the area of interest.
+#' @param buffer_dist_m integer reflecting a desired buffer distance (in meters)
+#' around the area of interest. If a site is within `buffer_dist_m` of `aoi_sf`, 
+#' retain that site. Defaults to 0 meters. 
 #' 
-#' @value returns a data frame containing sites from the Water Quality Portal that 
-#' are located within the area of interest.
+#' @returns 
+#' Returns a data frame with a row for each site in the Water Quality Portal
+#' that overlaps the area of interest. Columns contain site information and 
+#' record counts. 
 #' 
 subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   
