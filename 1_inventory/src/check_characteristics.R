@@ -1,7 +1,15 @@
-#' Function to read all valid characteristic names from WQP web service
+#' @title Read valid WQP characteristic names
 #' 
-#' @return vector of character strings representing all of the valid
-#' characteristic names from WQP
+#' @description 
+#' Function to read and return all valid entries for `CharacteristicName` 
+#' from the WQP web service. 
+#' 
+#' @returns 
+#' vector of character strings representing all of the valid
+#' characteristic names from WQP.
+#' 
+#' @examples 
+#' read_wqp_characteristics()
 #' 
 read_wqp_characteristics <- function(){
   
@@ -13,43 +21,63 @@ read_wqp_characteristics <- function(){
 }
 
 
-#' Function to check whether all user-specified characteristics are valid.
+#' @title Check requested characteristics
 #' 
-#' @param chars vector of character strings representing which characteristic
+#' @description 
+#' Function to check whether all user-specified entries for `CharacteristicName` 
+#' are valid.
+#' 
+#' @param char_names vector of character strings indicating which characteristic
 #' names to check against valid entries in the WQP.
 #' 
-#' @return logical statement for each string within supplied characteristics list;
+#' @returns 
+#' logical statement for each string within the supplied characteristics list;
 #' if any characteristics are not valid, a printed message will indicate which 
-#' characteristics do not exist in WQP. 
-#' @example check_valid_characteristics(c("Specific conductivity", "Specific conductance"))
+#' characteristics do not exist in the WQP. 
 #' 
-check_valid_characteristics <- function(chars) {
+#' @examples 
+#' check_valid_characteristics(c("Specific conductivity", "Specific conductance"))
+#' 
+check_valid_characteristics <- function(char_names) {
   
   # Fetch all WQP characteristics and test whether each user-supplied characteristic
   # name is within the list of valid entries from WQP
   all_characteristic_names <- read_wqp_characteristics()
-  chars_exist <- chars %in% all_characteristic_names
+  chars_exist <- char_names %in% all_characteristic_names
   
   if(!all(chars_exist)) {
     warning(sprintf("The following characteristics do not exist in WQP:\n\n%s\n",
-                    paste(chars[which(!chars_exist)], collapse="\n")))
+                    paste(char_names[which(!chars_exist)], collapse="\n")))
   }
   
   return(chars_exist)
 }
 
 
-#' Function to filter WQP parameters and associated characteristic names from a 
-#' general configuration file to only include the selected parameter groups of 
-#' interest for the data pull. 
+#' @title Subset characteristic names by parameter group
 #' 
-#' @param wqp_params list containing data frames corresponding to various 
-#' parameter groups of interest. Each element of the list is a named vector 
-#' that contains the character strings representing known WQP characteristic 
-#' names associated with each parameter. 
-#' @param param_groups_select character string indicating what parameter groups 
-#' will be used for the WQP data pull. Parameter strings should match the vector
+#' @description
+#' Function to filter WQP parameters and associated characteristic names from a 
+#' general configuration file. Characteristic names associated with the requested 
+#' parameter groups of interest will be included in the data pull.  
+#' 
+#' @param wqp_params list object where each element of the list is a named vector.
+#' The vectors correspond with a parameter group and contain character string(s)
+#' representing known WQP characteristic names associated with each parameter. 
+#' @param param_groups_select character string indicating which parameter groups 
+#' to request in the WQP data pull. Parameter strings should match the vector
 #' names in `wqp_params`.
+#' 
+#' @returns 
+#' returns a vector of character strings containing the characteristic
+#' names that will be used to query the WQP. If any characteristics in 
+#' `wqp_params` are not valid, a printed message will indicate which 
+#' characteristics do not exist in the WQP.
+#' 
+#' @examples 
+#' params <- list(pH = c("PH", "pH", "pH, lab"))
+#' param_group_select <- "pH"
+#' filter_characteristics(params, param_group_select)
 #' 
 filter_characteristics <- function(wqp_params, param_groups_select){
   
@@ -63,22 +91,32 @@ filter_characteristics <- function(wqp_params, param_groups_select){
 }
 
 
-#' Function to search a list of valid WQP characteristic names and find valid
-#' characteristic names that are similar to the parameters requested.
+#' @title Find similar WQP characteristic names
 #' 
-#' @param characteristics_select character string of desired characteristic names 
-#' identified from the wqp codes cfg file
+#' @description 
+#' Function to search a list of WQP characteristic names and find other
+#' characteristic names that are similar to the requested parameter names.
+#' 
+#' @param characteristics_select character string containing desired characteristic 
+#' names as identified from the wqp codes configuration (cfg) file.
 #' @param param_groups_select character string indicating what parameter groups 
-#' will be used for the WQP data pull
-#' @param save_dir file path indicating where log files containing similar 
-#' characteristic names should be saved
+#' will be used for the WQP data pull.
+#' @param save_dir file path indicating where output files containing similar 
+#' characteristic names should be saved.
 #' 
-#' @return saves one .txt file for each parameter in param_groups_select. The saved 
-#' file(s) indicates valid characteristic names in WQP that are similar to that 
+#' @returns 
+#' Saves one .txt file for each parameter in param_groups_select. The saved 
+#' file(s) includes valid characteristic names in WQP that are similar to that 
 #' parameter, and indicates which entries are already included in the cfg file and
 #' which entries are not. Those entries not already included in the cfg file are 
 #' meant to provide a quick reference for additional characteristic names that 
 #' might warrant further consideration. 
+#' 
+#' @examples
+#' chars_select <- c("Temperature", "Temperature, sample")
+#' params_select <- c("temperature")
+#' save_dir <- "1_inventory/out"
+#' find_similar_characteristics(chars_select, params_select, save_dir)
 #' 
 find_similar_characteristics <- function(characteristics_select, param_groups_select, save_dir){
   
