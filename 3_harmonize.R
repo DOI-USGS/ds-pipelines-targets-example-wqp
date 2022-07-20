@@ -8,8 +8,10 @@ p3_targets_list <- list(
   # not be parsed as numeric. The default option is to format "ResultMeasureValue" 
   # and "DetectionQuantitationLimitMeasure.MeasureValue" to numeric, but additional
   # variables can be added using the `vars_to_numeric` argument in format_columns().
-  # The default option is to retain all columns, but undesired variables can also be 
-  # dropped from the WQP dataset using the optional `drop_vars` argument. 
+  # For any columns parsed to numeric, the original entries are retained in columns
+  # ending in "_original." By default, format_columns() will retain all columns, 
+  # but undesired variables can also be dropped from the WQP dataset using the 
+  # optional `drop_vars` argument. 
   tar_target(
     p3_wqp_data_aoi_formatted,
     format_columns(p2_wqp_data_aoi, save_dir = "3_harmonize/out")
