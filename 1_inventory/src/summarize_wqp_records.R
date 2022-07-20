@@ -67,8 +67,8 @@ summarize_wqp_data <- function(wqp_inventory_summary_csv, wqp_data, fileout){
   # Compare WQP inventory summary with data pull 
   compare_summaries <- wqp_summary %>%
     left_join(wqp_inventory_summary, by = "CharacteristicName") %>%
-    mutate(results_diff = n_sites_expected - n_records,
-           sites_diff = n_records_expected - n_sites)
+    mutate(results_diff = n_records_expected - n_records,
+           sites_diff = n_sites_expected - n_sites)
   
   msg_suggest <- "Check that wqp_args are the same for both p1_wqp_inventory and p1_wqp_data_aoi. 
   In addition, check whether the inventory is outdated by running tar_outdated() 
