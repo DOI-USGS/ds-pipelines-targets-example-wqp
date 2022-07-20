@@ -1,19 +1,20 @@
-#' Create a big grid that covers the globe
+#' @title Create a global grid of boxes
 #'  
-#' @description Function to create a big grid of boxes to use for chunked
-#' data queries
+#' @description 
+#' Function to create a big grid of boxes to use for chunked data queries.
 #' 
 #' @param cellsize the target cell size of each box in map units (here, degrees);
 #' takes two values indicating the size in the x direction and the size in the 
 #' y direction. Defaults to 2 degree cell size. See ??sf::st_make_grid for 
 #' further details.
 #' 
-#' @value returns an sf polygon object containing the geometries and an attribute 
+#' @returns 
+#' Returns an sf polygon object containing the geometries and an attribute 
 #' id for each box within the global grid.
 #' 
-#' @example create_global_grid(cellsize = c(1,1))
+#' @examples 
+#' create_global_grid(cellsize = c(1,1))
 #' 
-
 create_global_grid <- function(cellsize = c(2,2)){
  
   global_box <- sf::st_bbox(c(xmin = -180, xmax = 180,
@@ -48,27 +49,29 @@ create_global_grid <- function(cellsize = c(2,2)){
 
 
 
-#' Subset grid to AOI
+#' @title Subset grid cells to an area of interest
 #' 
-#' @description Function to spatially subset a holistic grid of boxes
-#' to find the boxes that overlap the area of interest. The area of 
-#' interest is buffered to ensure that all overlapping boxes are returned.
+#' @description 
+#' Function to spatially subset a holistic grid of boxes to find the
+#' grid cells that overlap the area of interest. 
 #' 
 #' @param grid sf polygon object containing the geometries and an attribute 
 #' id for each box within the grid.
-#' @param aoi_sf sf polygon object representing the area of interest
-#' @param buffer_dist_m integer; grid geometries will be returned if distances 
-#' between the grid polygons and the aoi polygon are smaller or equal to this value.
-#' Defaults to 0 meters, although users may adjust the distance.
+#' @param aoi_sf sf polygon object representing the area of interest.
+#' @param buffer_dist_m integer; grid geometries will be returned if the
+#' distance between the grid polygon and the aoi polygon is smaller or equal
+#' to this value. Defaults to 0 meters, although users may increase the buffer 
+#' distance.
 #' 
-#' @value returns an sf polygon object containing the geometries for each box 
+#' @returns 
+#' Returns an sf polygon object containing the geometries for each grid cell 
 #' within the holistic grid that overlaps the buffered area of interest.
 #' 
-#' @example subset_grids_to_aoi(grid = p1_global_grid, 
-#'                              aoi_sf = p1_AOI_sf, 
-#'                              dist_m = 5000)
+#' @examples 
+#' tar_load(p1_global_grid)
+#' tar_load(p1_AOI_sf)
+#' subset_grids_to_aoi(p1_global_grid, p1_AOI_sf, buffer_dist_m = 5000)
 #' 
-
 subset_grids_to_aoi <- function(grid, aoi_sf, buffer_dist_m = 0){
 
   
@@ -82,25 +85,4 @@ subset_grids_to_aoi <- function(grid, aoi_sf, buffer_dist_m = 0){
   return(grid_subset_aoi)
   
 }
-
-
-
-#' Return bounding box as a vector
-#' 
-#' @description Function to find the bounding box for an sf object(s) and return
-#' as a vector
-#' 
-#' @param grid sf polygon object containing the geometries and an attribute
-#' id for each box within the grid
-#' 
-
-return_bbox <- function(grid){
-  
-  bbox <- lapply(sf::st_geometry(grid), sf::st_bbox) %>% 
-    setNames(grid$id)
-  
-  return(bbox)
-  
-}
-
 
