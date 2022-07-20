@@ -6,6 +6,7 @@ tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval',
 
 source("1_inventory.R")
 source("2_download.R")
+source("3_harmonize.R")
 
 # Define the temporal extent of our data pull
 # set start_date or end_date to "" to query the earliest or latest available date
@@ -36,6 +37,6 @@ wqp_args <- list(sampleMedia = c("Water","water"),
                  startDateHi = end_date)
 
 # Return the complete list of targets
-c(p1_targets_list, p2_targets_list)
+c(p1_targets_list, p2_targets_list, p3_targets_list)
 
 
