@@ -19,7 +19,7 @@ p3_targets_list <- list(
   # Harmonize WQP data
   tar_target(
     p3_wqp_data_aoi_clean,
-    clean_wqp_data(p3_wqp_data_aoi_formatted, p1_wqp_params)
+    clean_wqp_data(p3_wqp_data_aoi_formatted, p1_char_names_crosswalk)
   )
 
 )
