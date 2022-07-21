@@ -99,6 +99,20 @@ last_forced_build <- "2022-07-01"
 ```
 If using this `last_forced_build` option, be aware that downstream pipeline steps, including data download and harmonization, would get rebuilt only IF the inventory outputs change compared to their previous state. Therefore, using and editing this variable does not guarantee that updated values will be downloaded from WQP if the inventory, including site ids and number of records, has not changed from the previous build.
 
+### Harmonizing water quality data
+We currently include a few select data cleaning steps in the `3_harmonize` phase of the pipeline. The harmonization steps included here are not comprehensive and are meant to highlight a few common data cleaning routines and show how they could be implemented within this pipeline. 
+
+The first harmonization step is to format columns, which includes converting select columns to class `numeric` and optionally, dropping undesired columns from the downloaded dataset. WQP variables intended to represent numeric values will occasionally contain non-numeric values (e.g. when `"*Non-detect"` appears in column `ResultMeasureValue`). The original entries are retained in a separate column for reference and non-numeric values are replaced with `NA`. If you want to see the unexpected, non-numeric values that are converted to `NA` for columns that we formatted as numeric, you can quickly do that after the pipeline has run using code like the example using `ResultMeasureValue` below:  
+
+```r
+tar_load(p3_wqp_data_aoi_formatted)
+p3_wqp_data_aoi_formatted %>%
+  dplyr::filter(is.na(ResultMeasureValue),
+                !is.na(ResultMeasureValue_original)) %>%
+  dplyr::pull(ResultMeasureValue_original)
+
+```
+
 ## Comments on pipeline design 
 This data pipeline is built around the central idea that smaller queries to the WQP are more likely to succeed and therefore, most workflows that pull WQP data would benefit from dividing larger requests into smaller ones. There are many different ways we could have gone about grouping or "chunking" data queries. We use `targets` ["branching"](https://books.ropensci.org/targets/dynamic.html) capabilities to apply (or _map_) our data inventory and download functions over discrete spatial units represented by grids that overlap our area of interest. Another valid approach would have been to generate `targets` branches over units of time, which might work well for applications where we have a defined spatial extent and just want to update the data from time to time. In this pipeline we opted to divide our queries by spatial units so that the pipeline can be readily scaled to the area of interest and because different contributors may add data to WQP at different lags, making it difficult to know when older data are considered "current."
 
