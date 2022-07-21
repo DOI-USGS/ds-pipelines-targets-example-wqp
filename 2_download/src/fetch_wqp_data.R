@@ -99,8 +99,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
         arrange(desc(results_count)) %>%
         mutate(task_num = MESS::cumsumbinning(x = results_count, 
                                               threshold = max_results, 
-                                              maxgroupsize = max_sites),
-               download_grp = paste0(grid_id,"_",task_num))
+                                              maxgroupsize = max_sites))
     }) %>%
     mutate(pull_by_id = TRUE)
   
@@ -116,6 +115,10 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   # format columns
   sitecounts_grouped_out <- sitecounts_grouped_good_ids %>%
     bind_rows(sitecounts_grouped_bad_ids) %>%
+    # Ensure the groups are ordered correctly by prepending a dynamic number of 0s
+    # before the task number based on the maximum number of tasks.
+    mutate(download_grp = sprintf(paste0("%s_%0", nchar(max(task_num)), "d"), 
+                                  grid_id, task_num)) %>% 
     arrange(download_grp) %>%
     select(site_id, lat, lon, datum, results_count, download_grp, pull_by_id) 
   
