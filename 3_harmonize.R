@@ -1,5 +1,6 @@
 # Source the functions that will be used to build the targets in p3_targets_list
 source("3_harmonize/src/format_columns.R")
+source("3_harmonize/src/clean_wqp_data.R")
 
 p3_targets_list <- list(
   
@@ -13,6 +14,12 @@ p3_targets_list <- list(
   tar_target(
     p3_wqp_data_aoi_formatted,
     format_columns(p2_wqp_data_aoi)
+  ),
+  
+  # Harmonize WQP data
+  tar_target(
+    p3_wqp_data_aoi_clean,
+    clean_wqp_data(p3_wqp_data_aoi_formatted, p1_wqp_params)
   )
 
 )
