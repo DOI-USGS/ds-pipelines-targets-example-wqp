@@ -105,6 +105,7 @@ We currently include a few select data cleaning steps in the `3_harmonize` phase
 The first harmonization step is to format columns, which includes converting select columns to class `numeric` and optionally, dropping undesired columns from the downloaded dataset. WQP variables intended to represent numeric values will occasionally contain non-numeric values (e.g. when `"*Non-detect"` appears in column `ResultMeasureValue`). The original entries are retained in a separate column for reference and non-numeric values are replaced with `NA`. If you want to see the unexpected, non-numeric values that are converted to `NA` for columns that we formatted as numeric, you can quickly do that after the pipeline has run using code like the example using `ResultMeasureValue` below:  
 
 ```r
+library(dplyr)
 tar_load(p3_wqp_data_aoi_formatted)
 p3_wqp_data_aoi_formatted %>%
   dplyr::filter(is.na(ResultMeasureValue),
