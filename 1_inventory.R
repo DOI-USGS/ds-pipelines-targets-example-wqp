@@ -15,16 +15,23 @@ p1_targets_list <- list(
     format = "file"
   ),
   
-  # Load yml file containing common parameters groups and WQP characteristic names
+  # Load yml file containing common parameter groups and WQP characteristic names
   tar_target(
     p1_wqp_params,
     yaml::read_yaml(p1_wqp_params_yml) 
   ),
   
+  # Format a table that indicates how various WQP characteristic names map onto 
+  # more commonly-used parameter names
+  tar_target(
+    p1_char_names_crosswalk,
+    crosswalk_characteristics(p1_wqp_params)
+  ),
+  
   # Get a vector of WQP characteristic names to match parameter groups of interest
   tar_target(
     p1_char_names,
-    filter_characteristics(p1_wqp_params, param_groups_select)
+    filter_characteristics(p1_char_names_crosswalk, param_groups_select)
   ),
   
   # Save output file(s) containing WQP characteristic names that are similar to the

@@ -55,7 +55,7 @@ We could also use existing watershed boundaries or another polygon from an exter
 ```
 
 ### Changing the parameter list
-This workflow comes with a configuration file containing common water quality parameter groups and associated WQP characteristic names ("1_inventory/cfg_wqp_codes.yml"). This configuration file is meant to provide a starting place for an analysis and does not represent a definitive list of characteristic names. The yml file can be edited to omit certain characteristic names or include others, however, it's recommended to leave the top-level parameter names as is to avoid downstream impacts to the code within the "3_harmonize" phase of the pipeline.
+This workflow comes with a configuration file containing common water quality parameter groups and associated WQP characteristic names ("1_inventory/cfg_wqp_codes.yml"). This configuration file is meant to provide a starting place for an analysis and does not represent a definitive list of characteristic names. The yml file can be edited to omit certain characteristic names and include others, to change top-level parameter names, or to customize parameter groupings. 
 
 ### Changing the date range
 Customize the temporal extent of the WQP data pull by editing the variables `start_date` and `end_date` in `_targets.R`. Queries can accept `start_date` and `end_date` in `"YYYY-MM-DD"` format, or can be set to `""` to request the earliest or latest available dates, respectively. 
