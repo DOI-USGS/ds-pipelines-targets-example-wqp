@@ -1,3 +1,31 @@
+#' @title Create parameter-characteristics crosswalk table
+#' 
+#' @description 
+#' Function to create a crosswalk table that maps characteristic names onto
+#' more commonly-used water quality parameter names. 
+
+#' @param wqp_params list object where each element of the list is a named vector.
+#' The vectors correspond with a parameter group and contain character string(s)
+#' representing known WQP characteristic names associated with each parameter.
+#' 
+#' @returns 
+#' Returns a data frame containing a row for each unique characteristic name.
+#' Columns represent the characteristic name and its corresponding parameter 
+#' name.
+#' 
+crosswalk_characteristics <- function(wqp_params){
+  
+  params_df <- lapply(names(wqp_params), function(x){
+    params <- data.frame(char_name = wqp_params[[x]],
+                         parameter = x) 
+  }) %>%
+    bind_rows()
+  
+  return(params_df)
+  
+}
+
+
 #' @title Read valid WQP characteristic names
 #' 
 #' @description 
@@ -58,12 +86,12 @@ check_valid_characteristics <- function(char_names) {
 #' 
 #' @description
 #' Function to filter WQP parameters and associated characteristic names from a 
-#' general configuration file. Characteristic names associated with the requested 
-#' parameter groups of interest will be included in the data pull.  
+#' characteristics-to-parameter crosswalk table. Characteristic names associated 
+#' with the requested parameter groups of interest will be included in the data pull.  
 #' 
-#' @param wqp_params list object where each element of the list is a named vector.
-#' The vectors correspond with a parameter group and contain character string(s)
-#' representing known WQP characteristic names associated with each parameter. 
+#' @param char_names_crosswalk data frame containing columns "char_name" and 
+#' "parameter". The column "char_name" contains character strings representing 
+#' known WQP characteristic names associated with each parameter.
 #' @param param_groups_select character string indicating which parameter groups 
 #' to request in the WQP data pull. Parameter strings should match the vector
 #' names in `wqp_params`.
@@ -75,14 +103,16 @@ check_valid_characteristics <- function(char_names) {
 #' characteristics do not exist in the WQP.
 #' 
 #' @examples 
-#' params <- list(pH = c("PH", "pH", "pH, lab"))
-#' param_group_select <- "pH"
-#' filter_characteristics(params, param_group_select)
+#' params <- data.frame(char_name = c("PH", "pH", "pH, lab"),
+#'                      parameter = rep("pH", 3))
+#' filter_characteristics(params, "pH")
 #' 
-filter_characteristics <- function(wqp_params, param_groups_select){
+filter_characteristics <- function(char_names_crosswalk, param_groups_select){
   
   # Create character string containing desired characteristic names
-  characteristics_select <- as.character(unlist(wqp_params[param_groups_select]))
+  characteristics_select <- char_names_crosswalk %>%
+    filter(parameter %in% param_groups_select) %>%
+    pull(char_name)
   
   # Return desired characteristic names that represent valid WQP characteristics
   characteristics_in_wqp <- characteristics_select[check_valid_characteristics(characteristics_select)]
