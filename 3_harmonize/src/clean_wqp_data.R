@@ -24,6 +24,8 @@
 #' organization, site id, date, time, characteristic name, and sample fraction. 
 #' However, these options can be customized by passing a vector of column names 
 #' to the argument `duplicate_definition`.
+#' @param remove_duplicated_rows logical; should duplicated records be omitted
+#' from the cleaned dataset? Defaults to TRUE. 
 #' 
 #' @returns 
 #' Returns a formatted and harmonized data frame containing data downloaded from 
@@ -38,7 +40,8 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
                                                     'ActivityStartDate', 
                                                     'ActivityStartTime.Time',
                                                     'CharacteristicName', 
-                                                    'ResultSampleFractionText')){
+                                                    'ResultSampleFractionText'),
+                           remove_duplicated_rows = TRUE){
 
   # Clean data and assign flags if applicable
   wqp_data_clean <- wqp_data %>%
@@ -49,11 +52,18 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     flag_missing_results(., commenttext_missing) %>%
     # flag duplicate records
     flag_duplicates(., duplicate_definition) %>%
-    remove_duplicates(., duplicate_definition)
+    {if(remove_duplicated_rows){
+      remove_duplicates(., duplicate_definition)
+    } else {.}
+    }
   
+  # Inform the user what we found for duplicated rows
+  if(remove_duplicated_rows){
+    message(sprintf(paste0("Removed %s duplicated records."), 
+                    nrow(wqp_data) - nrow(wqp_data_clean)))
+  }
   
   return(wqp_data_clean)
-  
   
 }
 
