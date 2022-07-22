@@ -74,6 +74,7 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
 #' Function to flag true missing results, i.e. when the result measure value 
 #' and detection limit value are both NA, when "not reported" is found in the
 #' column "ResultDetectionConditionText", or when any of the strings from
+#' `commenttext_missing` are found in the column "ResultCommentText".
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record. Must contain the columns
