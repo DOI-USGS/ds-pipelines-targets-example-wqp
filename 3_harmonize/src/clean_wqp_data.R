@@ -90,12 +90,11 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
 flag_missing_results <- function(wqp_data, commenttext_missing){
   
   wqp_data_out <- wqp_data %>%
-    mutate(flag_missing_result = case_when(
-      is.na(ResultMeasureValue) & is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ TRUE,
-      grepl("not reported", ResultDetectionConditionText, ignore.case = TRUE) ~ TRUE,
-      grepl(paste(commenttext_missing, collapse = "|"), ResultCommentText, ignore.case = TRUE) ~ TRUE,
-      TRUE ~ FALSE
-    ))
+    mutate(flag_missing_result = 
+             ( is.na(ResultMeasureValue) & is.na(DetectionQuantitationLimitMeasure.MeasureValue) ) |
+             grepl("not reported", ResultDetectionConditionText, ignore.case = TRUE) |
+             grepl(paste(commenttext_missing, collapse = "|"), ResultCommentText, ignore.case = TRUE)
+    )
   
   return(wqp_data_out)
   
