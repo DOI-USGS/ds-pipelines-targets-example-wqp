@@ -107,7 +107,6 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   sitecounts_grouped_bad_ids <- sitecounts_bad_ids %>%
     group_by(site_id) %>%
     mutate(task_num = max(sitecounts_grouped_good_ids$task_num) + cur_group_id(),
-           download_grp = paste0(grid_id,"_",task_num),
            pull_by_id = FALSE) %>%
     ungroup()
   
