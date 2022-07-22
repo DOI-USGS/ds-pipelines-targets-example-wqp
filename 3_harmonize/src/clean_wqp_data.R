@@ -7,7 +7,7 @@
 #' records as well as duplicate records.
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
-#' where each row represents a unique data record.
+#' where each row represents a data record. 
 #' @param char_names_crosswalk data frame containing columns "char_name" and 
 #' "parameter". The column "char_name" contains character strings representing 
 #' known WQP characteristic names associated with each parameter.
@@ -45,23 +45,50 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     # harmonize characteristic names by assigning a common parameter name
     # to the groups of characteristics supplied in `char_names_crosswalk`.
     left_join(y = char_names_crosswalk, by = c("CharacteristicName" = "char_name")) %>%
-    # flag true missing results, i.e. when result measure value and detection
-    # limit value are both NA, when "not reported" is found in the column
-    # "ResultDetectionConditionText", or when any of the strings from
-    # `commenttext_missing` are found in the column "ResultCommentText".
-    mutate(flag_missing_result = case_when(
-      is.na(ResultMeasureValue) & is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ TRUE,
-      grepl("not reported", ResultDetectionConditionText, ignore.case = TRUE) ~ TRUE,
-      grepl(paste(commenttext_missing, collapse = "|"), ResultCommentText, ignore.case = TRUE) ~ TRUE,
-      TRUE ~ FALSE
-    )) %>%
-    # Flag duplicate records
+    # flag true missing results
+    flag_missing_results(., commenttext_missing) %>%
+    # flag duplicate records
     flag_duplicates(., duplicate_definition)
   
   return(wqp_data_clean)
   
   
 }
+
+
+#' @title Flag missing results
+#' 
+#' @description 
+#' Function to flag true missing results, i.e. when the result measure value 
+#' and detection limit value are both NA, when "not reported" is found in the
+#' column "ResultDetectionConditionText", or when any of the strings from
+#' 
+#' @param wqp_data data frame containing the data downloaded from the WQP, 
+#' where each row represents a data record. Must contain the columns
+#' "DetectionQuantitationLimitMeasure.MeasureValue", "ResultMeasureValue", 
+#' "ResultDetectionConditionText", and "ResultCommentText".
+#' @param commenttext_missing character string(s) indicating which strings from
+#' the WQP column "ResultCommentText" correspond with missing result values.
+#' 
+#' @returns
+#' Returns a data frame containing data downloaded from the Water Quality Portal,
+#' where each row represents a data record. New columns appended to the original
+#' data frame include flags for missing results. 
+#' 
+flag_missing_results <- function(wqp_data, commenttext_missing){
+  
+  wqp_data_out <- wqp_data %>%
+    mutate(flag_missing_result = case_when(
+      is.na(ResultMeasureValue) & is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ TRUE,
+      grepl("not reported", ResultDetectionConditionText, ignore.case = TRUE) ~ TRUE,
+      grepl(paste(commenttext_missing, collapse = "|"), ResultCommentText, ignore.case = TRUE) ~ TRUE,
+      TRUE ~ FALSE
+    ))
+  
+  return(wqp_data_out)
+  
+}
+
 
 
 #' @title Flag duplicated records
@@ -81,8 +108,8 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
 #'
 #' @returns 
 #' Returns a data frame containing data downloaded from the Water Quality Portal,
-#' where each row represents a unique data record. New columns appended to the 
-#' original data frame include flags for duplicated records. 
+#' where each row represents a data record. New columns appended to the original
+#' data frame include flags for duplicated records. 
 #' 
 flag_duplicates <- function(wqp_data, duplicate_definition){
   
