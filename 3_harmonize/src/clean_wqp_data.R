@@ -15,7 +15,8 @@
 #' the WQP column "ResultCommentText" correspond with missing result values. By 
 #' default, the column "ResultCommentText" will be searched for the following 
 #' strings: "analysis lost", "not analyzed", "not recorded", "not collected", 
-#' and "no measurement taken", but other values may be added as well. 
+#' and "no measurement taken", but other values may be added by passing in a new
+#' vector with all values to be treated as missing.  
 #' @param duplicate_definition character string(s) indicating which columns are
 #' used to identify a duplicate record. Duplicate records are defined as those 
 #' that share the same value for each column within `duplicate_definition`. By 
@@ -72,7 +73,7 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
 #' easier to drop all others from the dataset. 
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
-#' where each row represents a unique data record.
+#' where each row represents a data record.
 #' @param duplicate_definition character string(s) indicating which columns are
 #' used to identify a duplicate record. Duplicate records are defined as those 
 #' that share the same value for each column within `duplicate_definition`.
