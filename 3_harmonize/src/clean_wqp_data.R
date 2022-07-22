@@ -48,7 +48,9 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     # flag true missing results
     flag_missing_results(., commenttext_missing) %>%
     # flag duplicate records
-    flag_duplicates(., duplicate_definition)
+    flag_duplicates(., duplicate_definition) %>%
+    remove_duplicates(., duplicate_definition)
+  
   
   return(wqp_data_clean)
   
@@ -95,10 +97,7 @@ flag_missing_results <- function(wqp_data, commenttext_missing){
 #' 
 #' @description 
 #' Function to flag duplicated rows based on a user-supplied definition
-#' of a duplicate record. Additional flags can help reconcile duplicate sets.
-#' For example, a flag "flag_duplicate_drop_random" is assigned based on 
-#' randomly selecting the first record from a duplicated set, making it 
-#' easier to drop all others from the dataset. 
+#' of a duplicate record. 
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record.
@@ -113,22 +112,52 @@ flag_missing_results <- function(wqp_data, commenttext_missing){
 #' 
 flag_duplicates <- function(wqp_data, duplicate_definition){
   
+  # Flag duplicate records using the `duplicate_definition`
   wqp_data_out <- wqp_data %>%
-    # Step 1: Flag duplicate records using the `duplicate_definition`
     group_by(across(all_of(duplicate_definition))) %>% 
     mutate(n_duplicated = n(),
            flag_duplicated_row = if_else(n_duplicated > 1, TRUE, FALSE)) %>% 
-    # Step 2: For remaining duplicates, randomly select the first record from
-    # each duplicated set and flag all others for exclusion
-    mutate(dup_number = seq(n_duplicated),
-           flag_duplicate_drop_random = if_else(n_duplicated > 1 & 
-                                                  dup_number != 1, 
-                                                TRUE, FALSE)) %>%
-    ungroup() %>%
-    select(-c(n_duplicated, dup_number))
+    ungroup()
   
   return(wqp_data_out)
   
 }
+
+
+#' @title Remove duplicated records
+#' 
+#' @description
+#' Function to append additional flags to sets of duplicate rows that are then 
+#' used to drop duplicates from the dataset. Currently, we randomly retain the 
+#' first record in a set of duplicated rows and drop all others.
+#' 
+#' @param wqp_data data frame containing the data downloaded from the WQP, 
+#' where each row represents a data record.
+#' @param duplicate_definition character string(s) indicating which columns are
+#' used to identify a duplicate record. Duplicate records are defined as those 
+#' that share the same value for each column within `duplicate_definition`.
+#' 
+#' @returns 
+#' Returns a data frame containing data downloaded from the Water Portal in which
+#' duplicated rows have been removed. 
+#' 
+remove_duplicates <- function(wqp_data, duplicate_definition){
+
+  wqp_data_out <- wqp_data %>%
+    group_by(across(all_of(duplicate_definition))) %>% 
+    # To help resolve duplicates, randomly select the first record
+    # from each duplicated set and flag all others for exclusion.
+    mutate(dup_number = seq(n_duplicated),
+           flag_duplicate_drop_random = if_else(n_duplicated > 1 & 
+                                                  dup_number != 1, 
+                                                TRUE, FALSE)) %>%
+    filter(flag_duplicate_drop_random == FALSE) %>%
+    ungroup() %>%
+    select(-c(n_duplicated, dup_number, flag_duplicate_drop_random))
+  
+  return(wqp_data_out)
+  
+}
+
 
 
