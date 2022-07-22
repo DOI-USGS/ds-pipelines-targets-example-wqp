@@ -6,12 +6,11 @@
 #' them to more commonly-used water quality parameter names, and to flag missing
 #' records as well as duplicate records.
 #' 
+#' @param wqp_data data frame containing the data downloaded from the WQP, 
+#' where each row represents a unique data record.
 #' @param char_names_crosswalk data frame containing columns "char_name" and 
 #' "parameter". The column "char_name" contains character strings representing 
 #' known WQP characteristic names associated with each parameter.
-#' @param wqp_params list object where each element of the list is a named vector.
-#' The vectors correspond with a parameter group and contain character string(s)
-#' representing known WQP characteristic names associated with each parameter. 
 #' @param commenttext_missing character string(s) indicating which strings from
 #' the WQP column "ResultCommentText" correspond with missing result values. By 
 #' default, the column "ResultCommentText" will be searched for the following 
