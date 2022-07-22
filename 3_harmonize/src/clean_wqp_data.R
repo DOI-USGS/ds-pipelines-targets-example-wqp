@@ -54,14 +54,43 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
       grepl(paste(commenttext_missing, collapse = "|"), ResultCommentText, ignore.case = TRUE) ~ TRUE
     )) %>%
     # Flag duplicate records
-    group_by(across(all_of(duplicate_definition))) %>% 
-    mutate(n_duplicated = n(),
-           flag_duplicated_row = if_else(n_duplicated > 1, TRUE, NA)) %>% 
-    ungroup()%>%
-    select(-n_duplicated)
+    flag_duplicates(., duplicate_definition)
   
   return(wqp_data_clean)
   
   
 }
+
+
+#' @title Flag duplicated records
+#' 
+#' @description 
+#' Function to flag duplicated rows based on a user-supplied definition
+#' of a duplicate record. 
+#' 
+#' @param wqp_data data frame containing the data downloaded from the WQP, 
+#' where each row represents a unique data record.
+#' @param duplicate_definition character string(s) indicating which columns are
+#' used to identify a duplicate record. Duplicate records are defined as those 
+#' that share the same value for each column within `duplicate_definition`.
+#'
+#' @returns 
+#' Returns a data frame containing data downloaded from the Water Quality Portal,
+#' where each row represents a unique data record. New columns appended to the 
+#' original data frame include flags for duplicated records. 
+#' 
+flag_duplicates <- function(wqp_data, duplicate_definition){
+  
+  wqp_data_out <- wqp_data %>%
+    # Flag duplicate records using the `duplicate_definition`
+    group_by(across(all_of(duplicate_definition))) %>% 
+    mutate(n_duplicated = n(),
+           flag_duplicated_row = if_else(n_duplicated > 1, TRUE, NA)) %>% 
+    ungroup() %>%
+    select(-n_duplicated)
+  
+  return(wqp_data_out)
+  
+}
+
 
