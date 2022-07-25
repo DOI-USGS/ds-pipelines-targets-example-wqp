@@ -20,6 +20,9 @@
 #' @param cond_param_name character string indicating which string in the 
 #' "parameter" column of `char_names_crosswalk` corresponds with conductivity 
 #' data. Default value is 'conductivity'.
+#' @param temp_param_name character string indicating which string in the 
+#' "parameter" column of `char_names_crosswalk` corresponds with temperature
+#' data. Default value is 'temperature'.
 #' @param duplicate_definition character string(s) indicating which columns are
 #' used to identify a duplicate record. Duplicate records are defined as those 
 #' that share the same value for each column within `duplicate_definition`. By 
@@ -39,6 +42,7 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
                                                    'not recorded', 'not collected', 
                                                    'no measurement taken'),
                            cond_param_name = 'conductivity',
+                           temp_param_name = 'temperature',
                            duplicate_definition = c('OrganizationIdentifier',
                                                     'MonitoringLocationIdentifier',
                                                     'ActivityStartDate', 
@@ -56,6 +60,8 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     flag_missing_results(., commenttext_missing) %>%
     # harmonize conductivity units
     clean_conductivity_data(., char_names_crosswalk, cond_param_name) %>%
+    # harmonize temperature units
+    clean_temperature_data(., char_names_crosswalk, temp_param_name) %>% 
     # flag duplicate records
     flag_duplicates(., duplicate_definition) %>%
     {if(remove_duplicated_rows){
