@@ -26,15 +26,17 @@ clean_temperature_data <- function(wqp_data, char_names_crosswalk, temp_param_na
   
   # Clean temperature data
   wqp_data_out <- wqp_data %>%
+    # create logical variable to use for filtering rows to apply cleaning steps
+    mutate(is_nonNA_temperature = CharacteristicName %in% temp_char_names &
+             !is.na(ResultMeasureValue)) %>%
     # harmonize units
-    mutate(ResultMeasureValue = if_else(CharacteristicName %in% temp_char_names & 
-                                          !is.na(ResultMeasureValue) & 
+    mutate(ResultMeasureValue = if_else(is_nonNA_temperature & 
                                           ResultMeasure.MeasureUnitCode == "deg F",
                                         ((ResultMeasureValue - 32) * (5/9)), ResultMeasureValue),
-           ResultMeasure.MeasureUnitCode = if_else(CharacteristicName %in% temp_char_names &
-                                                     !is.na(ResultMeasureValue) & 
+           ResultMeasure.MeasureUnitCode = if_else(is_nonNA_temperature & 
                                                      ResultMeasure.MeasureUnitCode == "deg F",
-                                                   "deg C", ResultMeasure.MeasureUnitCode))
+                                                   "deg C", ResultMeasure.MeasureUnitCode)) %>%
+    select(-is_nonNA_temperature)
   
   return(wqp_data_out)
   
