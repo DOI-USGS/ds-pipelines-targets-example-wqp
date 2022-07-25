@@ -26,41 +26,40 @@ clean_conductivity_data <- function(wqp_data, char_names_crosswalk, cond_param_n
   
   # Harmonize conductivity units when possible
   wqp_data_out <- wqp_data %>%
+    # create logical variable to use for filtering rows to apply cleaning steps
+    mutate(is_nonNA_conductivity = CharacteristicName %in% cond_char_names &
+             !is.na(ResultMeasureValue)) %>%
     # convert values from mS/cm to uS/cm
-    mutate(ResultMeasureValue = if_else(CharacteristicName %in% cond_char_names & 
-                                          !is.na(ResultMeasureValue) & 
+    mutate(ResultMeasureValue = if_else(is_nonNA_conductivity &
                                           ResultMeasure.MeasureUnitCode == "mS/cm",
                                         (ResultMeasureValue * 1000), ResultMeasureValue),
            # update units in column "ResultMeasure.MeasureUnitCode"
            ResultMeasure.MeasureUnitCode = case_when(
              # convert mS/cm to uS/cm
-             CharacteristicName %in% cond_char_names & 
-               !is.na(ResultMeasureValue) & 
+             is_nonNA_conductivity & 
                ResultMeasure.MeasureUnitCode == "mS/cm" ~ "uS/cm",
              # convert equivalent units (umho/cm) to uS/cm
-             CharacteristicName %in% cond_char_names & 
-               !is.na(ResultMeasureValue) & 
+             is_nonNA_conductivity & 
                ResultMeasure.MeasureUnitCode == "umho/cm" ~ "uS/cm",
              # if result measure unit code is NA but units are reported for
              # the detection quantitation limit, assume that the quantitation
              # units also apply to the result value
-             CharacteristicName %in% cond_char_names & 
+             is_nonNA_conductivity & 
                is.na(ResultMeasure.MeasureUnitCode) &
                !is.na(DetectionQuantitationLimitMeasure.MeasureUnitCode) ~
                DetectionQuantitationLimitMeasure.MeasureUnitCode,
              # attempt to standardize units using temperature basis
-             CharacteristicName %in% cond_char_names &
-               !is.na(ResultMeasureValue) & 
+             is_nonNA_conductivity & 
                ResultMeasure.MeasureUnitCode == "uS/cm" &
                grepl("25 deg C", ResultTemperatureBasisText, ignore.case = TRUE) ~
                paste0(ResultMeasure.MeasureUnitCode, " @25C"),
              TRUE ~ ResultMeasure.MeasureUnitCode)
            ) %>%
     # assume that uS/cm is equivalent to uS/cm at 25 degrees C
-    mutate(ResultMeasure.MeasureUnitCode = if_else(CharacteristicName %in% cond_char_names & 
-                                                     !is.na(ResultMeasureValue) & 
+    mutate(ResultMeasure.MeasureUnitCode = if_else(is_nonNA_conductivity & 
                                                      ResultMeasure.MeasureUnitCode == "uS/cm @25C", 
-                                                   "uS/cm", ResultMeasure.MeasureUnitCode))
+                                                   "uS/cm", ResultMeasure.MeasureUnitCode)) %>%
+    select(-is_nonNA_conductivity)
           
   return(wqp_data_out)
 }
