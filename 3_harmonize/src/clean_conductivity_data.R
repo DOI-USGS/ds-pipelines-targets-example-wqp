@@ -8,18 +8,20 @@
 #' @param char_names_crosswalk data frame containing columns "char_name" and 
 #' "parameter". The column "char_name" contains character strings representing 
 #' known WQP characteristic names associated with each parameter.
+#' @param cond_param_name character string indicating which string in the 
+#' "parameter" column of `char_names_crosswalk` corresponds with conductivity 
+#' data.
 #' 
 #' @returns 
 #' Returns a formatted and harmonized data frame containing data downloaded from 
 #' the Water Quality Portal, where each row represents a data record. Conductivity
 #' units have been standardized to uS/cm where possible. 
 #' 
-clean_conductivity_data <- function(wqp_data, char_names_crosswalk){
+clean_conductivity_data <- function(wqp_data, char_names_crosswalk, cond_param_name){
   
-  # Grab the characteristic names associated with parameter 'conductivity'
-  # from `char_names_crosswalk`
+  # Grab characteristic names associated with conductivity in `char_names_crosswalk`
   cond_char_names <- char_names_crosswalk %>%
-    filter(parameter == "conductivity") %>%
+    filter(parameter == cond_param_name) %>%
     pull(char_name)
   
   # Harmonize conductivity units when possible
