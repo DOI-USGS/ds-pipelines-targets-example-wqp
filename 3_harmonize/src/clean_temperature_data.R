@@ -17,26 +17,17 @@
 #' the Water Quality Portal, where each row represents a data record. Temperature
 #' units have been standardized to degrees celsius where possible. 
 #' 
-clean_temperature_data <- function(wqp_data, char_names_crosswalk, temp_param_name){
-  
-  # Grab characteristic names associated with temperature in `char_names_crosswalk`
-  temp_char_names <- char_names_crosswalk %>%
-    filter(parameter == temp_param_name) %>%
-    pull(char_name)
-  
+clean_temperature_data <- function(wqp_data){
+
   # Clean temperature data
   wqp_data_out <- wqp_data %>%
-    # create logical variable to use for filtering rows to apply cleaning steps
-    mutate(is_nonNA_temperature = CharacteristicName %in% temp_char_names &
-             !is.na(ResultMeasureValue)) %>%
     # harmonize units
-    mutate(ResultMeasureValue = if_else(is_nonNA_temperature & 
+    mutate(ResultMeasureValue = if_else(!is.na(ResultMeasureValue) & 
                                           ResultMeasure.MeasureUnitCode == "deg F",
                                         ((ResultMeasureValue - 32) * (5/9)), ResultMeasureValue),
-           ResultMeasure.MeasureUnitCode = if_else(is_nonNA_temperature & 
+           ResultMeasure.MeasureUnitCode = if_else(!is.na(ResultMeasureValue) & 
                                                      ResultMeasure.MeasureUnitCode == "deg F",
-                                                   "deg C", ResultMeasure.MeasureUnitCode)) %>%
-    select(-is_nonNA_temperature)
+                                                   "deg C", ResultMeasure.MeasureUnitCode)) 
   
   return(wqp_data_out)
   

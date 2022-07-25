@@ -20,17 +20,55 @@ p3_targets_list <- list(
   ),
   
   # Harmonize WQP data by uniting diverse characteristic names under more
-  # commonly-used water quality parameter names; flagging missing records and
-  # duplicate records; and harmonizing diverse units where possible. Duplicated
-  # rows are identified using the argument `duplicate_definition`. By default, 
-  # a record will be considered duplicated if it shares the same organization, 
-  # site id, date, time, characteristic name, and sample fraction, although a 
-  # different vector of column names can be passed to `clean_wqp_data()` below.
-  # By default, duplicated rows are flagged and omitted from the dataset. To 
+  # commonly-used water quality parameter names, flagging missing records,
+  # and flagging duplicate records. Duplicated rows are identified using 
+  # the argument `duplicate_definition`. By default, a record will be 
+  # considered duplicated if it shares the same organization, site id, date,
+  # time, characteristic name and sample fraction, although a different 
+  # vector of column names can be passed to `clean_wqp_data()` below. By 
+  # default, duplicated rows are flagged and omitted from the dataset. To 
   # retain duplicate rows, set the argument `remove_duplicated_rows` to FALSE. 
   tar_target(
     p3_wqp_data_aoi_clean,
     clean_wqp_data(p3_wqp_data_aoi_formatted, p1_char_names_crosswalk)
+  ),
+  
+  # Group the WQP data by parameter group in preparation for parameter-specific
+  # data cleaning steps
+  tar_target(
+    p3_wqp_data_aoi_clean_grp,
+    p3_wqp_data_aoi_clean %>%
+      group_by(parameter) %>%
+      tar_group(),
+    iteration = "group"
+  ),
+
+  # Create a table that defines parameter-specific data cleaning functions.
+  tar_target(
+    p3_wqp_param_cleaning_info,
+    tibble(
+      parameter_grp_name = c('conductivity', 'temperature'),
+      cleaning_fxn = c('clean_conductivity_data', 'clean_temperature_data')
+    )
+  ),
+  
+  # Harmonize WQP data by applying parameter-specific data cleaning steps to
+  # including harmonizing units where possible. 
+  tar_target(
+    p3_wqp_data_aoi_clean_param,
+    {
+      # Decide which function to use
+      fxn_to_use <- p3_wqp_param_cleaning_info %>%
+        filter(parameter_grp_name == unique(p3_wqp_data_aoi_clean_grp$parameter)) %>%
+        pull(cleaning_fxn)
+      
+      # If applicable, apply parameter-specific cleaning function
+      if(length(fxn_to_use) > 0){
+        do.call(fxn_to_use, list(wqp_data = p3_wqp_data_aoi_clean_grp))
+      } else {.}
+    },
+    map(p3_wqp_data_aoi_clean_grp)
   )
 
 )
+
