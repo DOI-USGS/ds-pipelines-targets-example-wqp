@@ -50,6 +50,8 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     left_join(y = char_names_crosswalk, by = c("CharacteristicName" = "char_name")) %>%
     # flag true missing results
     flag_missing_results(., commenttext_missing) %>%
+    # harmonize conductivity units
+    clean_conductivity_data(., char_names_crosswalk) %>%
     # flag duplicate records
     flag_duplicates(., duplicate_definition) %>%
     {if(remove_duplicated_rows){
