@@ -19,13 +19,15 @@ p3_targets_list <- list(
     format_columns(p2_wqp_data_aoi)
   ),
   
-  # Harmonize WQP data. Duplicated rows are identified using the argument
-  # `duplicate_definition`. By default, a record will be considered duplicated
-  # if it shares the same organization, site id, date, time, characteristic name,
-  # and sample fraction, although a different vector of column names can be 
-  # passed to `clean_wqp_data()` below. By default, duplicated rows are flagged
-  # and omitted from the dataset. To retain duplicate rows, set the argument 
-  # `remove_duplicated_rows` to FALSE. 
+  # Harmonize WQP data by uniting diverse characteristic names under more
+  # commonly-used water quality parameter names; flagging missing records and
+  # duplicate records; and harmonizing diverse units where possible. Duplicated
+  # rows are identified using the argument `duplicate_definition`. By default, 
+  # a record will be considered duplicated if it shares the same organization, 
+  # site id, date, time, characteristic name, and sample fraction, although a 
+  # different vector of column names can be passed to `clean_wqp_data()` below.
+  # By default, duplicated rows are flagged and omitted from the dataset. To 
+  # retain duplicate rows, set the argument `remove_duplicated_rows` to FALSE. 
   tar_target(
     p3_wqp_data_aoi_clean,
     clean_wqp_data(p3_wqp_data_aoi_formatted, p1_char_names_crosswalk)
