@@ -3,8 +3,10 @@
 #' @description 
 #' Function to harmonize WQP data in preparation for further analysis. Included
 #' in this function are steps to unite diverse characteristic names by assigning
-#' them to more commonly-used water quality parameter names, and to flag missing
-#' records as well as duplicate records.
+#' them to more commonly-used water quality parameter names; to flag missing
+#' records as well as duplicate records; and to carry out parameter-specific
+#' harmonization steps for temperature and conductivity data, including
+#' harmonizing units where possible. 
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record. 
