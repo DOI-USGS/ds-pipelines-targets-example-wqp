@@ -5,12 +5,6 @@
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record.
-#' @param char_names_crosswalk data frame containing columns "char_name" and 
-#' "parameter". The column "char_name" contains character strings representing 
-#' known WQP characteristic names associated with each parameter.
-#' @param cond_param_name character string indicating which string in the 
-#' "parameter" column of `char_names_crosswalk` corresponds with conductivity 
-#' data.
 #' 
 #' @returns 
 #' Returns a formatted and harmonized data frame containing data downloaded from 
