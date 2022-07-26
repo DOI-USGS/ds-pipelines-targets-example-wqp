@@ -35,7 +35,7 @@ p3_targets_list <- list(
   
   # Create a table that defines parameter-specific data cleaning functions.
   # Cleaning functions should be defined within a named list where the name
-  # of the function defines each list element. 
+  # of each list element is the function name.
   tar_target(
     p3_wqp_param_cleaning_info,
     tibble(
@@ -56,8 +56,11 @@ p3_targets_list <- list(
     iteration = "group"
   ),
   
-  # Harmonize WQP data by applying parameter-specific data cleaning steps to
-  # including harmonizing units where possible.
+  # Harmonize WQP data by applying parameter-specific data cleaning steps,
+  # including harmonizing units where possible. `p3_wqp_param_cleaning_info` 
+  # is a {targets} dependency, so changes to any of the parameter-specific 
+  # cleaning functions will trigger a rebuild of only those branches that 
+  # correspond to the group of data impacted by the change.
   tar_target(
     p3_wqp_data_aoi_clean_param,
     {

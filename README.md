@@ -114,6 +114,51 @@ p3_wqp_data_aoi_formatted %>%
 
 ```
 
+The data cleaning functions included in this pipeline can be categorized as general cleaning functions that are applicable to all WQP data records, or parameter-specific cleaning functions that apply to individual parameter groups. An example of a parameter-specific cleaning step is to harmonize temperature units to a consistent value such as degrees Celsius. General data cleaning functions get applied when building the `p3_wqp_data_aoi_clean` target and parameter-specific cleaning functions are applied in `p3_wqp_data_aoi_clean_param`. The pipeline currently contains relatively simple functions for harmonizing conductivity and temperature data. The conductivity or temperature functions can be edited to accommodate project-specific needs or preferences for data harmonization. To include steps for harmonizing another parameter group, you can create a new function and add it to the list of functions in `p3_wqp_param_cleaning_info`. For example, we could add harmonization steps specific to nitrate in the example below:
+
+```r
+# In a file named clean_nitrate_data.R within the 3_harmonize/src directory:
+
+clean_nitrate_data <- function(wqp_data){
+ wqp_data_out <- wqp_data %>%
+    # Convert units from ug/L to mg/L
+    mutate(ResultMeasureValue = if_else(!is.na(ResultMeasureValue) & 
+                                          grepl("ug/l", ResultMeasure.MeasureUnitCode, ignore.case = TRUE),
+                                        (ResultMeasureValue * 0.001), ResultMeasureValue),
+           ResultMeasure.MeasureUnitCode = if_else(!is.na(ResultMeasureValue) & 
+                                          grepl("ug/l", ResultMeasure.MeasureUnitCode, ignore.case = TRUE),
+                                          "mg/L", ResultMeasure.MeasureUnitCode)) 
+  
+  return(wqp_data_out)
+}
+
+```
+
+```r
+# In 3_harmonize.R:
+
+# Remember to add the new nitrate-specific cleaning function to the source calls at the top of 3_harmonize.R
+source("3_harmonize/src/clean_nitrate_data.R")
+
+...
+
+# Add the new function to the list of parameter-specific cleaning functions in p3_wqp_param_cleaning_info
+  tar_target(
+    p3_wqp_param_cleaning_info,
+    tibble(
+      parameter = c('conductivity', 'temperature', 'nitrate'),
+      cleaning_fxn = list(clean_conductivity_data = clean_conductivity_data,
+                          clean_temperature_data = clean_temperature_data,
+                          clean_nitrate_data = clean_nitrate_data)
+    )
+  ),
+
+
+```
+
+If the pipeline has been run previously, only the nitrate data will be impacted by this addition and the `targets` branches corresponding to the conductivity and temperature data subsets will be skipped over when building `p3_wqp_data_aoi_clean_param`.
+
+
 ## Comments on pipeline design 
 This data pipeline is built around the central idea that smaller queries to the WQP are more likely to succeed and therefore, most workflows that pull WQP data would benefit from dividing larger requests into smaller ones. There are many different ways we could have gone about grouping or "chunking" data queries. We use `targets` ["branching"](https://books.ropensci.org/targets/dynamic.html) capabilities to apply (or _map_) our data inventory and download functions over discrete spatial units represented by grids that overlap our area of interest. Another valid approach would have been to generate `targets` branches over units of time, which might work well for applications where we have a defined spatial extent and just want to update the data from time to time. In this pipeline we opted to divide our queries by spatial units so that the pipeline can be readily scaled to the area of interest and because different contributors may add data to WQP at different lags, making it difficult to know when older data are considered "current."
 
