@@ -3,8 +3,10 @@
 #' @description 
 #' Function to harmonize WQP data in preparation for further analysis. Included
 #' in this function are steps to unite diverse characteristic names by assigning
-#' them to more commonly-used water quality parameter names, and to flag missing
-#' records as well as duplicate records.
+#' them to more commonly-used water quality parameter names; to flag missing
+#' records as well as duplicate records; and to carry out parameter-specific
+#' harmonization steps for temperature and conductivity data, including
+#' harmonizing units where possible. 
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record. 
@@ -127,7 +129,8 @@ flag_duplicates <- function(wqp_data, duplicate_definition){
     group_by(across(all_of(duplicate_definition))) %>% 
     mutate(n_duplicated = n(),
            flag_duplicated_row = n_duplicated > 1) %>% 
-    ungroup()
+    ungroup() %>%
+    select(-n_duplicated)
   
   return(wqp_data_out)
   
@@ -157,7 +160,8 @@ remove_duplicates <- function(wqp_data, duplicate_definition){
     group_by(across(all_of(duplicate_definition))) %>% 
     # To help resolve duplicates, randomly select the first record
     # from each duplicated set and flag all others for exclusion.
-    mutate(dup_number = seq(n_duplicated),
+    mutate(n_duplicated = n(),
+           dup_number = seq(n_duplicated),
            flag_duplicate_drop_random = n_duplicated > 1 & dup_number != 1) %>%
     filter(flag_duplicate_drop_random == FALSE) %>%
     ungroup() %>%
