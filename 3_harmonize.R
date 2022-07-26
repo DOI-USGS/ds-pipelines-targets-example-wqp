@@ -3,6 +3,7 @@ source("3_harmonize/src/format_columns.R")
 source("3_harmonize/src/clean_wqp_data.R")
 source("3_harmonize/src/clean_conductivity_data.R")
 source("3_harmonize/src/clean_temperature_data.R")
+source("3_harmonize/src/summarize_targets.R")
 
 p3_targets_list <- list(
   
@@ -76,6 +77,12 @@ p3_targets_list <- list(
       } else {.}
     },
     map(p3_wqp_data_aoi_clean_grp)
+  ),
+  
+  # Save an output file containing pipeline metadata, including build time.
+  tar_target(
+    p3_pipeline_metadata_csv,
+    summarize_targets(fileout = "3_harmonize/out/pipeline_summary.csv")
   )
 
 )
