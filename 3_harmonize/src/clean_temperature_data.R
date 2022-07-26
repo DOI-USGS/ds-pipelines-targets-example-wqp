@@ -17,10 +17,10 @@ clean_temperature_data <- function(wqp_data){
   wqp_data_out <- wqp_data %>%
     # harmonize units
     mutate(ResultMeasureValue = if_else(!is.na(ResultMeasureValue) & 
-                                          ResultMeasure.MeasureUnitCode == "deg F",
+                                          grepl("deg F", ResultMeasure.MeasureUnitCode, ignore.case = TRUE),
                                         ((ResultMeasureValue - 32) * (5/9)), ResultMeasureValue),
            ResultMeasure.MeasureUnitCode = if_else(!is.na(ResultMeasureValue) & 
-                                                     ResultMeasure.MeasureUnitCode == "deg F",
+                                                     grepl("deg F", ResultMeasure.MeasureUnitCode, ignore.case = TRUE),
                                                    "deg C", ResultMeasure.MeasureUnitCode)) 
   
   return(wqp_data_out)
