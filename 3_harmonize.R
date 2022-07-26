@@ -33,26 +33,27 @@ p3_targets_list <- list(
     clean_wqp_data(p3_wqp_data_aoi_formatted, p1_char_names_crosswalk)
   ),
   
-  # Group the WQP data by parameter group in preparation for parameter-specific
-  # data cleaning steps.
-  tar_target(
-    p3_wqp_data_aoi_clean_grp,
-    p3_wqp_data_aoi_clean %>%
-      group_by(parameter) %>%
-      tar_group(),
-    iteration = "group"
-  ),
-
   # Create a table that defines parameter-specific data cleaning functions.
   # Cleaning functions should be defined within a named list where the name
   # of the function defines each list element. 
   tar_target(
     p3_wqp_param_cleaning_info,
     tibble(
-      parameter_grp_name = c('conductivity', 'temperature'),
-      cleaning_fxn = list(clean_conductivity_data = clean_conductivity_data, 
+      parameter = c('conductivity', 'temperature'),
+      cleaning_fxn = list(clean_conductivity_data = clean_conductivity_data,
                           clean_temperature_data = clean_temperature_data)
     )
+  ),
+  
+  # Group the WQP data by parameter group in preparation for parameter-specific
+  # data cleaning steps.
+  tar_target(
+    p3_wqp_data_aoi_clean_grp,
+    p3_wqp_data_aoi_clean %>%
+      left_join(p3_wqp_param_cleaning_info, by = "parameter") %>% 
+      group_by(parameter) %>%
+      tar_group(),
+    iteration = "group"
   ),
   
   # Harmonize WQP data by applying parameter-specific data cleaning steps to
@@ -61,10 +62,10 @@ p3_targets_list <- list(
     p3_wqp_data_aoi_clean_param,
     {
       # Decide which function to use
-      fxn_to_use <- p3_wqp_param_cleaning_info %>%
-        filter(parameter_grp_name == unique(p3_wqp_data_aoi_clean_grp$parameter)) %>%
+      fxn_to_use <- p3_wqp_data_aoi_clean_grp %>%
         pull(cleaning_fxn) %>%
-        names()
+        names() %>% 
+        unique()
       
       # If applicable, apply parameter-specific cleaning function
       if(length(fxn_to_use) > 0){
