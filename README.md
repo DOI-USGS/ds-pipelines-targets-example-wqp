@@ -169,6 +169,10 @@ Our intent was to make this data pipeline scalable to larger requests that inclu
 One final note about pipeline design - we chose to inventory the WQP by bounding boxes. There are other [valid inputs](https://www.waterqualitydata.us/webservices_documentation/) that can be used to query WQP with the functions `whatWQPdata()` and `readWQPdata()` from the [`dataRetrieval`](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html) R package, including HUC8 identifier (`huc`), state code (`statecode`), etc. There may be considerations for either approach. Querying by bounding box, as we do here, will not find any sites that are missing latitude and longitude parameters. 
 
 
+## Acknowledgements
+The data harmonization steps included in this pipeline build off of code and ideas for cleaning WQP data developed by [Jennifer Murphy](https://www.usgs.gov/staff-profiles/jennifer-murphy) and [Megan Shoda](https://www.usgs.gov/staff-profiles/megan-shoda).
+
+
 <br>  
 
 
