@@ -10,6 +10,17 @@ library(targets)
 tar_make()
 ```
 
+## Basic pipeline structure
+
+This pipeline is divided into three phases that divide the workflow:  
+  
+1) **Inventory** what sites and records are available in the WQP  
+2) **Download** the inventoried data  
+3) Clean or **harmonize** the downloaded data to prepare the dataset for further analysis  
+
+Each phase of the pipeline contains `log` and `out` directories where different types of files are saved during the pipeline build. In this workflow we refer to `log` files as files that are meant to track pipeline changes and help the user understand the outcomes from the pipeline build. It can be helpful to "commit" or check these files into version control because later diffs would show which files were updated, making it easier to keep track of data changes over time.
+
+
 ## Customizing the WQP pipeline
 
 The `targets` package (https://books.ropensci.org/targets/) provides data pipeline tools that allow us to take advantage of modular functions, dependency tracking, and an automated workflow to pull data from the WQP. The basic ingredient of a `targets` workflow is a target script file named `_targets.R` that is used to define and configure all of the pipeline connections. This WQP pipeline is structured so that various inputs - including the date range, spatial extent, parameters of interest, and/or specific arguments to pass along to WQP queries - can all be modified within the `_targets.R` file.
@@ -166,7 +177,8 @@ In addition to querying WQP across spatial units, we further split data queries 
 
 Our intent was to make this data pipeline scalable to larger requests that include more characteristic names, a broader spatial extent, or longer time periods. The data splits described here result in more reasonably-sized queries AND allow us to take advantage of `targets` dependency tracking to efficiently build or update the data pipeline. For example, we do not have to re-download _all_ of the data records from WQP just because we added one additional characteristic name or because a couple new sites were recently added to WQP and detected in our inventory. `targets` will only update those data subsets that become "outdated" by an upstream change. 
 
-One final note about pipeline design - we chose to inventory the WQP by bounding boxes. There are other [valid inputs](https://www.waterqualitydata.us/webservices_documentation/) that can be used to query WQP with the functions `whatWQPdata()` and `readWQPdata()` from the [`dataRetrieval`](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html) R package, including HUC8 identifier (`huc`), state code (`statecode`), etc. There may be considerations for either approach. Querying by bounding box, as we do here, will not find any sites that are missing latitude and longitude parameters. 
+One final note about pipeline design - we chose to inventory the WQP by bounding boxes. There are other [valid inputs](https://www.waterqualitydata.us/webservices_documentation/) that can be used to query WQP with the functions `whatWQPdata()` and `readWQPdata()` from the [`dataRetrieval`](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html) R package, including HUC8 identifier (`huc`), state code (`statecode`), etc. There may be considerations for either approach. Querying by bounding box, as we do here, will not find any sites that are missing latitude and longitude parameters.
+
 
 
 ## Acknowledgements
