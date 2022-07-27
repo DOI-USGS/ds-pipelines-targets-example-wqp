@@ -96,9 +96,12 @@ p3_targets_list <- list(
   
   # Save an output file containing pipeline metadata, including build time.
   tar_target(
-    p3_pipeline_metadata_csv,
-    summarize_targets("3_harmonize/out/pipeline_summary.csv"),
-    format = "file"
+    p3_pipeline_metadata_csv,{
+    # Add the harmonized data output as a pseudo-dependency so that this
+    # target builds after the data download is completed.
+    p3_wqp_records_summary_csv
+    summarize_targets("3_harmonize/out/pipeline_summary.csv")
+    }, format = "file"
   )
 
 )
