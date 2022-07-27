@@ -90,13 +90,15 @@ p3_targets_list <- list(
                           grouping_cols = c('parameter', 
                                             'CharacteristicName',
                                             'ResultMeasure.MeasureUnitCode'),
-                          "3_harmonize/out/wqp_records_summary.csv")
+                          "3_harmonize/out/wqp_records_summary.csv"),
+    format = "file"
   ),
   
   # Save an output file containing pipeline metadata, including build time.
   tar_target(
     p3_pipeline_metadata_csv,
-    summarize_targets("3_harmonize/out/pipeline_summary.csv")
+    summarize_targets("3_harmonize/out/pipeline_summary.csv"),
+    format = "file"
   )
 
 )
