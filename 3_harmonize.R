@@ -3,6 +3,7 @@ source("3_harmonize/src/format_columns.R")
 source("3_harmonize/src/clean_wqp_data.R")
 source("3_harmonize/src/clean_conductivity_data.R")
 source("3_harmonize/src/clean_temperature_data.R")
+source("1_inventory/src/summarize_wqp_records.R")
 source("3_harmonize/src/summarize_targets.R")
 
 p3_targets_list <- list(
@@ -77,6 +78,19 @@ p3_targets_list <- list(
       } else {.}
     },
     map(p3_wqp_data_aoi_clean_grp)
+  ),
+  
+  # Summarize the number of records associated with each parameter,
+  # characteristic name, and harmonized units. The harmonized dataset
+  # can be summarized using any combination of columns by passing a
+  # different vector of column names in `grouping_cols`.
+  tar_target(
+    p3_wqp_records_summary_csv,
+    summarize_wqp_records(p3_wqp_data_aoi_clean_param, 
+                          grouping_cols = c('parameter', 
+                                            'CharacteristicName',
+                                            'ResultMeasure.MeasureUnitCode'),
+                          "3_harmonize/out/wqp_records_summary.csv")
   ),
   
   # Save an output file containing pipeline metadata, including build time.
