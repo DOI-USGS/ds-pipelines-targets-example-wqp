@@ -3,17 +3,17 @@
 #' @description 
 #' Function to summarize and save pipeline metadata
 #'
-#' @param names character string indicating which targets to return pipeline
-#' metadata for. Defaults to NULL, which returns all targets.
 #' @param fileout character string indicating the name of the saved file, 
 #' including file path and extension.
+#' @param names character string indicating which targets to return pipeline
+#' metadata for. Defaults to NULL, which returns all targets.
 #' 
 #' @returns 
 #' Returns a csv file containing pipeline metadata, with a row for each 
 #' requested `tar_name` and columns representing a unique data hash, the
 #' date of last build, and the build time for each target in seconds. 
 #' 
-summarize_targets <- function(names = NULL, fileout) {
+summarize_targets <- function(fileout, names = NULL) {
   
   if(is.null(names)){
     meta_tbl <- tar_meta()
