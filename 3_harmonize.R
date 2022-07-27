@@ -3,7 +3,7 @@ source("3_harmonize/src/format_columns.R")
 source("3_harmonize/src/clean_wqp_data.R")
 source("3_harmonize/src/clean_conductivity_data.R")
 source("3_harmonize/src/clean_temperature_data.R")
-source("1_inventory/src/summarize_wqp_records.R")
+source("3_harmonize/src/summarize_wqp_records.R")
 source("3_harmonize/src/summarize_targets.R")
 
 p3_targets_list <- list(
