@@ -1,6 +1,6 @@
 # Source the functions that will be used to build the targets in p2_targets_list
 source("2_download/src/fetch_wqp_data.R")
-source("1_inventory/src/summarize_wqp_records.R")
+source("2_download/src/summarize_wqp_download.R")
 
 p2_targets_list <- list(
   
@@ -46,7 +46,7 @@ p2_targets_list <- list(
   # Summarize the data downloaded from the WQP
   tar_target(
     p2_wqp_data_summary_csv,
-    summarize_wqp_data(p1_wqp_inventory_summary_csv, p2_wqp_data_aoi, 
+    summarize_wqp_download(p1_wqp_inventory_summary_csv, p2_wqp_data_aoi, 
                        "2_download/log/summary_wqp_data.csv"),
     format = "file"
   )
