@@ -94,12 +94,27 @@ p3_targets_list <- list(
     format = "file"
   ),
   
+  # Save output file containing the harmonized data. The code below can be edited
+  # to save the output data to a different file format, but note that a "file"
+  # target expects a character string to be returned when the target is built. 
+  # This target currently represents the output of the pipeline although more 
+  # steps can be added using `p3_wqp_data_aoi_clean_param` as a dependency to 
+  # downstream targets.
+  tar_target(
+    p3_wqp_data_aoi_clean_param_rds,{
+      outfile <- "3_harmonize/out/harmonized_wqp_data.rds"
+      saveRDS(p3_wqp_data_aoi_clean_param, outfile)
+      outfile
+    }, format = "file"
+  ),
+  
   # Save a log file containing pipeline metadata, including build time.
   tar_target(
     p3_pipeline_metadata_csv,{
-    # Add the harmonized data output as a pseudo-dependency so that this
-    # target builds after the data download is completed.
-    p3_wqp_records_summary_csv
+    # Add two saved files as pseudo-dependencies so that this target
+    # always builds after the data download is completed.
+    force_dep <- c(p3_wqp_records_summary_csv, 
+                   p3_wqp_data_aoi_clean_param_rds)
     summarize_targets("3_harmonize/log/pipeline_summary.csv")
     }, format = "file"
   )
