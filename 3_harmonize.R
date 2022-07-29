@@ -4,7 +4,6 @@ source("3_harmonize/src/clean_wqp_data.R")
 source("3_harmonize/src/clean_conductivity_data.R")
 source("3_harmonize/src/clean_temperature_data.R")
 source("3_harmonize/src/summarize_wqp_records.R")
-source("3_harmonize/src/summarize_targets.R")
 
 p3_targets_list <- list(
   
@@ -105,20 +104,6 @@ p3_targets_list <- list(
       outfile <- "3_harmonize/out/harmonized_wqp_data.rds"
       saveRDS(p3_wqp_data_aoi_clean_param, outfile)
       outfile
-    }, format = "file"
-  ),
-  
-  # Save a log file containing pipeline metadata, including build time.
-  tar_target(
-    p3_pipeline_metadata_csv,{
-    # Add pseudo-dependencies so that this target always builds last 
-    # and gets updated if any targets change.
-    force_dep <- c(p1_targets_list,
-                   p2_targets_list,
-                   p3_wqp_param_cleaning_info,
-                   p3_wqp_records_summary_csv, 
-                   p3_wqp_data_aoi_clean_param_rds)
-    summarize_targets("3_harmonize/log/pipeline_summary.csv")
     }, format = "file"
   )
 
