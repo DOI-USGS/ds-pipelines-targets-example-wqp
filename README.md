@@ -18,7 +18,7 @@ This pipeline is divided into three phases that divide the workflow:
 2) **Download** the inventoried data  
 3) Clean or **harmonize** the downloaded data to prepare the dataset for further analysis  
 
-Each phase of the pipeline contains `log` and `out` directories where different types of files are saved during the pipeline build. In this workflow we refer to `log` files as files that are meant to track pipeline changes and help the user understand the outcomes from the pipeline build. It can be helpful to "commit" or check these files into version control because later diffs would show which files were updated, making it easier to keep track of data changes over time.
+Each phase of the pipeline contains `log` and `out` directories where different types of files are saved during the pipeline build. In this workflow we refer to `log` files as files that are meant to track pipeline changes and help the user understand the outcomes from the pipeline build. It can be helpful to "commit" or check these files into version control because later diffs would show which files were updated, making it easier to keep track of data changes over time. Additional pipeline metadata can be accessed using `tar_meta()`. 
 
 
 ## Customizing the WQP pipeline
