@@ -111,9 +111,12 @@ p3_targets_list <- list(
   # Save a log file containing pipeline metadata, including build time.
   tar_target(
     p3_pipeline_metadata_csv,{
-    # Add two saved files as pseudo-dependencies so that this target
-    # always builds after the data download is completed.
-    force_dep <- c(p3_wqp_records_summary_csv, 
+    # Add pseudo-dependencies so that this target always builds last 
+    # and gets updated if any targets change.
+    force_dep <- c(p1_targets_list,
+                   p2_targets_list,
+                   p3_wqp_param_cleaning_info,
+                   p3_wqp_records_summary_csv, 
                    p3_wqp_data_aoi_clean_param_rds)
     summarize_targets("3_harmonize/log/pipeline_summary.csv")
     }, format = "file"

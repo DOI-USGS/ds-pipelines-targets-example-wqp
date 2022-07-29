@@ -11,7 +11,8 @@
 #' @returns 
 #' Returns a csv file containing pipeline metadata, with a row for each 
 #' requested `tar_name` and columns representing a unique data hash, the
-#' date of last build, and the build time for each target in seconds. 
+#' date/time the target's data in storage was last modified, and the build 
+#' time for each target in seconds. 
 #' 
 summarize_targets <- function(fileout, names = NULL) {
   
@@ -25,11 +26,11 @@ summarize_targets <- function(fileout, names = NULL) {
     # filter the metadata table to only include targets (and not functions or
     # other tracked elements)
     filter(!is.na(seconds)) %>%
-    select(tar_name = name, hash = data, date_last_build = time, build_time_seconds = seconds) 
+    select(tar_name = name, hash = data, date_last_modified = time, build_time_seconds = seconds) 
   
   # Save total build time
   build_time <- round((sum(ind_tbl$build_time_seconds)/60),1)
-  message(sprintf("The pipeline took %s minutes to build.", build_time))
+  message(sprintf("Total pipeline build time was %s minutes.", build_time))
   
   # Save the summary file
   readr::write_csv(ind_tbl, fileout)
