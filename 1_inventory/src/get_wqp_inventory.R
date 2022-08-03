@@ -30,6 +30,13 @@ library(sf)
 
 inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
   
+  # First, check dataRetrieval package version and inform user if outdated
+  if((packageVersion('dataRetrieval') < "2.7.6.9003")){
+    stop(sprintf(paste0("dataRetrieval version %s is installed but this pipeline ",
+                        "requires package 2.7.6.9003. Please update dataRetrieval."),
+                 packageVersion('dataRetrieval')))
+  }
+  
   # Get bounding box for the grid polygon
   bbox <- sf::st_bbox(grid)
   
