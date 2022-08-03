@@ -1,37 +1,3 @@
-#' @title Summarize available data in the Water Quality Portal
-#' 
-#' @description
-#' Function to summarize the expected number of sites and records that would
-#' be returned from the WQP for the area of interest.
-#'
-#' @param wqp_inventory data frame containing sites returned from the WQP 
-#' inventory, with one row per site; must contain columns CharacteristicName 
-#' and resultCount.
-#' @param fileout character string indicating the name of the saved file, 
-#' including the file path and extension.
-#' 
-#' @returns 
-#' Saves a .csv file containing the total number of sites and records available
-#' in the Water Quality Portal for each requested characteristic name.
-#' 
-summarize_wqp_inventory <- function(wqp_inventory, fileout){
-  
-  # Summarize WQP inventory
-  wqp_summary <- wqp_inventory %>%
-    group_by(CharacteristicName) %>%
-    summarize(n_sites = n(),
-              n_records = sum(resultCount),
-              .groups = 'drop') %>%
-    select(CharacteristicName, n_sites, n_records)
-  
-  # Write summary file
-  write_csv(wqp_summary, file = fileout)
-  
-  return(fileout)
-  
-}
-
-
 #' @title Summarize data downloaded from the Water Quality Portal
 #' 
 #' @description 
@@ -50,7 +16,7 @@ summarize_wqp_inventory <- function(wqp_inventory, fileout){
 #' Saves a .csv file containing the total number of sites and records downloaded
 #' from the Water Quality Portal for each requested characteristic name.
 #'  
-summarize_wqp_data <- function(wqp_inventory_summary_csv, wqp_data, fileout){
+summarize_wqp_download <- function(wqp_inventory_summary_csv, wqp_data, fileout){
   
   # Read in WQP inventory summary
   wqp_inventory_summary <- readr::read_csv(wqp_inventory_summary_csv, show_col_types = FALSE) %>%
@@ -77,13 +43,13 @@ summarize_wqp_data <- function(wqp_inventory_summary_csv, wqp_data, fileout){
   
   msg_if_greater <- sprintf("The expected number of records from the WQP inventory is greater than
   the number of records in the data pull for the following characteristics: \n\n%s\n\n%s\n",
-  paste(compare_summaries$CharacteristicName[compare_summaries$results_diff > 0], collapse="\n"),
-  msg_suggest)
+                            paste(compare_summaries$CharacteristicName[compare_summaries$results_diff > 0], collapse="\n"),
+                            msg_suggest)
   
   msg_if_fewer <- sprintf("The expected number of records from the WQP inventory is less than
   the number of records in the data pull for the following characteristics:\n\n%s\n\n%s\n",
-  paste(compare_summaries$CharacteristicName[compare_summaries$results_diff < 0], collapse="\n"),
-  msg_suggest)
+                          paste(compare_summaries$CharacteristicName[compare_summaries$results_diff < 0], collapse="\n"),
+                          msg_suggest)
   
   if(any(compare_summaries$results_diff != 0)) {
     # Find any characteristics for which the inventory contains more records than the data pull

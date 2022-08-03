@@ -127,6 +127,8 @@ flag_duplicates <- function(wqp_data, duplicate_definition){
   # Flag duplicate records using the `duplicate_definition`
   wqp_data_out <- wqp_data %>%
     group_by(across(all_of(duplicate_definition))) %>% 
+    # arrange all rows to maintain consistency in row order across users/machines
+    arrange(across(c(all_of(duplicate_definition), everything()))) %>%
     mutate(n_duplicated = n(),
            flag_duplicated_row = n_duplicated > 1) %>% 
     ungroup() %>%
@@ -158,6 +160,11 @@ remove_duplicates <- function(wqp_data, duplicate_definition){
 
   wqp_data_out <- wqp_data %>%
     group_by(across(all_of(duplicate_definition))) %>% 
+    # arrange all rows to maintain consistency in row order across users/machines;
+    # the rows should be ordered the same way across machines so that when we 
+    # "randomly" select the first duplicated row below, the output is consistent
+    # for all users.
+    arrange(across(c(all_of(duplicate_definition), everything()))) %>%
     # To help resolve duplicates, randomly select the first record
     # from each duplicated set and flag all others for exclusion.
     mutate(n_duplicated = n(),

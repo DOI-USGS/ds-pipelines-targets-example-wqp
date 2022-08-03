@@ -2,7 +2,7 @@
 source("1_inventory/src/check_characteristics.R")
 source("1_inventory/src/create_grids.R")
 source("1_inventory/src/get_wqp_inventory.R")
-source("1_inventory/src/summarize_wqp_records.R")
+source("1_inventory/src/summarize_wqp_inventory.R")
 
 p1_targets_list <- list(
   
