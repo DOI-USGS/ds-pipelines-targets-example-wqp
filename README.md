@@ -158,9 +158,7 @@ source("3_harmonize/src/clean_nitrate_data.R")
     p3_wqp_param_cleaning_info,
     tibble(
       parameter = c('conductivity', 'temperature', 'nitrate'),
-      cleaning_fxn = list(clean_conductivity_data = clean_conductivity_data,
-                          clean_temperature_data = clean_temperature_data,
-                          clean_nitrate_data = clean_nitrate_data)
+      cleaning_fxn = c(clean_conductivity_data, clean_temperature_data, clean_nitrate_data)
     )
   ),
 
