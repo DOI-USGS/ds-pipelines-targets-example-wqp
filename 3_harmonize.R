@@ -66,7 +66,7 @@ p3_targets_list <- list(
       fxn_to_use <- p3_wqp_param_cleaning_info %>%
         filter(parameter == unique(p3_wqp_data_aoi_clean_grp$parameter)) %>%
         pull(cleaning_fxn) %>%
-        .[[1]]
+        {.[[1]]}
       
       # If applicable, apply parameter-specific cleaning function
       if(length(fxn_to_use) > 0){
