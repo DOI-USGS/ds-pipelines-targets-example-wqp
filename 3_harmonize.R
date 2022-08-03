@@ -41,9 +41,7 @@ p3_targets_list <- list(
     p3_wqp_param_cleaning_info,
     tibble(
       parameter = c('conductivity', 'temperature'),
-      cleaning_fxn = list(clean_conductivity_data = clean_conductivity_data,
-                          clean_temperature_data = clean_temperature_data)
-    )
+      cleaning_fxn = c(clean_conductivity_data, clean_temperature_data))
   ),
   
   # Group the WQP data by parameter group in preparation for parameter-specific
@@ -51,7 +49,6 @@ p3_targets_list <- list(
   tar_target(
     p3_wqp_data_aoi_clean_grp,
     p3_wqp_data_aoi_clean %>%
-      left_join(p3_wqp_param_cleaning_info, by = "parameter") %>% 
       group_by(parameter) %>%
       tar_group(),
     iteration = "group"
@@ -66,10 +63,10 @@ p3_targets_list <- list(
     p3_wqp_data_aoi_clean_param,
     {
       # Decide which function to use
-      fxn_to_use <- p3_wqp_data_aoi_clean_grp %>%
+      fxn_to_use <- p3_wqp_param_cleaning_info %>%
+        filter(parameter == unique(p3_wqp_data_aoi_clean_grp$parameter)) %>%
         pull(cleaning_fxn) %>%
-        names() %>% 
-        unique()
+        .[[1]]
       
       # If applicable, apply parameter-specific cleaning function
       if(length(fxn_to_use) > 0){
