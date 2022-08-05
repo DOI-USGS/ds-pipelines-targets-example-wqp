@@ -3,8 +3,9 @@
 #' 
 #' @description
 #' Function to format WQP data columns, including to convert some columns of
-#' class character back to numeric. This function also presents the option 
-#' to drop undesired columns from the formatted data frame.
+#' class character back to numeric. This function also converts missing value
+#' strings to NA and presents the option to drop undesired columns from the 
+#' formatted data frame.
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a unique data record.
@@ -59,7 +60,11 @@ format_columns <- function(wqp_data,
     # and so cannot be parsed to a numeric value.
     suppressWarnings() %>%
     # drop any undesired columns 
-    select(-c(any_of(drop_vars)))
+    select(-c(any_of(drop_vars))) %>%
+    # convert missing value strings ("", " ", "<Blank>") to NA
+    mutate(across(where(is.character), ~ na_if(.,""))) %>%
+    mutate(across(where(is.character), ~ na_if(.," "))) %>%
+    mutate(across(where(is.character), ~ na_if(.,"<Blank>")))
   
   return(wqp_data_out)
 }
