@@ -25,7 +25,7 @@ identify_bad_ids <- function(sitecounts_df){
   # Check that string format matches regex used in WQP
   sitecounts_bad_ids <- sitecounts_df %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
-    mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+\\-.*\\S")) %>%
+    mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+.*[\\S]")) %>%
     filter(site_id != site_id_regex) %>%
     select(-site_id_regex)
 
