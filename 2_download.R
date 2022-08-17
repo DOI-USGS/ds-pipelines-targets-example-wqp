@@ -38,8 +38,10 @@ p2_targets_list <- list(
   # errors can sometimes be resolved by waiting a few hours and retrying tar_make().
   tar_target(
     p2_wqp_data_aoi,
-    fetch_wqp_data(p2_site_counts_grouped, p1_char_names, wqp_args = wqp_args),
-    pattern = cross(p2_site_counts_grouped, p1_char_names),
+    fetch_wqp_data(p2_site_counts_grouped, 
+                   characteristics = unique(p2_site_counts_grouped$CharacteristicName), 
+                   wqp_args = wqp_args),
+    pattern = map(p2_site_counts_grouped),
     error = "continue"
   ),
   

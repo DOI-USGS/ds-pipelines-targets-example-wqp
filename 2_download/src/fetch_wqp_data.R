@@ -96,10 +96,13 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     purrr::map_dfr(.f = function(df){
       
       df_grouped <- df %>%
+        group_by(CharacteristicName) %>%
         arrange(desc(results_count)) %>%
-        mutate(task_num = MESS::cumsumbinning(x = results_count, 
-                                              threshold = max_results, 
-                                              maxgroupsize = max_sites))
+        mutate(task_num_by_results = MESS::cumsumbinning(x = results_count, 
+                                                         threshold = max_results, 
+                                                         maxgroupsize = max_sites), 
+               task_num = task_num_by_results - 1 + cur_group_id()) %>%
+        ungroup()
     }) %>%
     mutate(pull_by_id = TRUE)
   
@@ -119,7 +122,8 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     mutate(download_grp = sprintf(paste0("%s_%0", nchar(max(task_num)), "d"), 
                                   grid_id, task_num)) %>% 
     arrange(download_grp) %>%
-    select(site_id, lat, lon, datum, results_count, download_grp, pull_by_id) 
+    select(site_id, lat, lon, datum, grid_id, CharacteristicName, results_count, 
+           download_grp, pull_by_id) 
   
   return(sitecounts_grouped_out)
 
