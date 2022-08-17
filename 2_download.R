@@ -8,7 +8,7 @@ p2_targets_list <- list(
   tar_target(
     p2_site_counts,
     p1_wqp_inventory_aoi %>%
-      group_by(MonitoringLocationIdentifier, lon, lat, datum, grid_id) %>%
+      group_by(MonitoringLocationIdentifier, lon, lat, datum, grid_id, CharacteristicName) %>%
       summarize(results_count = sum(resultCount, na.rm = TRUE),
                 .groups = 'drop')
   ),
