@@ -186,7 +186,7 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' download group. Must contain columns `site_id` and `pull_by_id`, where
 #' `pull_by_id` is logical and indicates whether data should be downloaded
 #' using the site identifier or by querying a small bounding box around the site.
-#' @param characteristics vector of character strings indicating which WQP
+#' @param char_names vector of character strings indicating which WQP 
 #' characteristic names to query.
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
@@ -208,12 +208,12 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #'               "Temperature, water", 
 #'               wqp_args = list(siteType = "Stream"))
 #' 
-fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, 
+fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL, 
                            max_tries = 3, verbose = FALSE){
   
   message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
                   nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
-                  characteristics))
+                  char_names))
   
   # Define arguments for readWQPdata
   # sites with pull_by_id = FALSE cannot be queried by their site
@@ -223,11 +223,11 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
   if(unique(site_counts_grouped$pull_by_id)){
     wqp_args_all <- c(wqp_args, 
                       list(siteid = site_counts_grouped$site_id,
-                           characteristicName = c(characteristics)))
+                           characteristicName = c(char_names)))
   } else {
     wqp_args_all <- c(wqp_args, 
                       list(bBox = create_site_bbox(site_counts_grouped),
-                           characteristicName = c(characteristics)))
+                           characteristicName = c(char_names)))
   }
   
   # Define function to pull data, retrying up to the number of times

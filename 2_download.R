@@ -39,7 +39,7 @@ p2_targets_list <- list(
   tar_target(
     p2_wqp_data_aoi,
     fetch_wqp_data(p2_site_counts_grouped, 
-                   characteristics = unique(p2_site_counts_grouped$CharacteristicName), 
+                   char_names = unique(p2_site_counts_grouped$CharacteristicName), 
                    wqp_args = wqp_args),
     pattern = map(p2_site_counts_grouped),
     error = "continue"
