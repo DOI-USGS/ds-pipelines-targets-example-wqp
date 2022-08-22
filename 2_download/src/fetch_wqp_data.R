@@ -86,10 +86,10 @@ add_download_groups <- function(site_counts, max_sites = 500, max_results = 2500
   sitecounts_good_ids <- site_counts %>%
     filter(!MonitoringLocationIdentifier %in% sitecounts_bad_ids$site_id)
   
-  # Within each unique grid_id, use the cumsumbinning function from the MESS
-  # package to group sites based on the cumulative sum of results_count 
-  # across sites within the grid, resetting the download group/task number 
-  # if the number of records exceeds the threshold set by `max_results`
+  # Within each unique grid_id, use the cumsumbinning function from the MESS package
+  # to group sites based on the cumulative sum of results_count across sites that 
+  # share the same characteristic name, resetting the download group/task number if 
+  # the number of records exceeds the threshold set by `max_results`.
   sitecounts_grouped_good_ids <- sitecounts_good_ids %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
     split(.$grid_id) %>%
@@ -98,6 +98,14 @@ add_download_groups <- function(site_counts, max_sites = 500, max_results = 2500
       df_grouped <- df %>%
         group_by(CharacteristicName) %>%
         arrange(desc(results_count)) %>%
+        # For each group representing a different characteristic name, first
+        # bin the sites based on the sum of the results_count column. Each 
+        # group (representing a different characteristic name) will have task 
+        # numbers that start with "1", so to create unique task numbers across 
+        # different characteristic names, we add a new column called `task_num` 
+        # that starts counting the task numbers at the current group id. Note
+        # that dplyr::cur_group_id() returns a unique numeric identifier for 
+        # the current group/characteristic name. 
         mutate(task_num_by_results = MESS::cumsumbinning(x = results_count, 
                                                          threshold = max_results, 
                                                          maxgroupsize = max_sites), 
