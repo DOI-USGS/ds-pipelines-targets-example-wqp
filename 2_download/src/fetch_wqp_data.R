@@ -98,18 +98,34 @@ add_download_groups <- function(site_counts, max_sites = 500, max_results = 2500
       df_grouped <- df %>%
         group_by(CharacteristicName) %>%
         arrange(desc(results_count), .by_group = TRUE) %>%
-        # Each group (which represents a different characteristic name) will have
-        # task numbers that start with "1", so to create unique task numbers, we
-        # add a new column called `task_num` that starts counting the task numbers
-        # at the current group id. For example, both "Specific conductance" and
-        # "Temperature" may have values for task_num_by_results of 1 and 2 but 
-        # the values of cur_group_id() (1 and 2, respectively) would mean that 
-        # they have unique values for task_num equaling 1, 2, 3, and 4.
         mutate(task_num_by_results = MESS::cumsumbinning(x = results_count, 
                                                          threshold = max_results, 
                                                          maxgroupsize = max_sites), 
-               task_num = task_num_by_results - 1 + cur_group_id()) %>%
-        ungroup()
+               char_group = cur_group_id(),
+               task_num = NA_integer_) %>%
+        ungroup() 
+      
+      # Each group (which represents a different characteristic name) will have
+      # task numbers that start with "1", so to create unique task numbers, we
+      # modify a column called `task_num` that starts counting the task numbers
+      # where the previous group id left off. For example, both "Specific 
+      # conductance" and "Temperature" may have values for task_num_by_results 
+      # of 1 and 2 but the values of char_group (1 and 2, respectively) would 
+      # mean that they have unique values for task_num equaling 1, 2, 3, and 4.
+      for(i in seq_along(df_grouped$site_id)){
+        
+        if(df_grouped$char_group[i] == 1){
+          df_grouped$task_num[i] <- df_grouped$task_num_by_results[i]
+        } else {
+          max_task_prev_group <- df_grouped %>%
+            filter(char_group == df_grouped$char_group[i] - 1) %>%
+            pull(task_num) %>%
+            max()
+          df_grouped$task_num[i] <- df_grouped$task_num_by_results[i] + max_task_prev_group
+        }
+      }
+      return(df_grouped)
+      
     }) %>%
     mutate(pull_by_id = TRUE)
   
