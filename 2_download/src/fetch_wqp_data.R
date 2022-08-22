@@ -98,14 +98,13 @@ add_download_groups <- function(site_counts, max_sites = 500, max_results = 2500
       df_grouped <- df %>%
         group_by(CharacteristicName) %>%
         arrange(desc(results_count)) %>%
-        # For each group representing a different characteristic name, first
-        # bin the sites based on the sum of the results_count column. Each 
-        # group (representing a different characteristic name) will have task 
-        # numbers that start with "1", so to create unique task numbers across 
-        # different characteristic names, we add a new column called `task_num` 
-        # that starts counting the task numbers at the current group id. Note
-        # that dplyr::cur_group_id() returns a unique numeric identifier for 
-        # the current group/characteristic name. 
+        # Each group (which represents a different characteristic name) will have
+        # task numbers that start with "1", so to create unique task numbers, we
+        # add a new column called `task_num` that starts counting the task numbers
+        # at the current group id. For example, both "Specific conductance" and
+        # "Temperature" may have values for task_num_by_results of 1 and 2 but 
+        # the values of cur_group_id() (1 and 2, respectively) would mean that 
+        # they have unique values for task_num equaling 1, 2, 3, and 4.
         mutate(task_num_by_results = MESS::cumsumbinning(x = results_count, 
                                                          threshold = max_results, 
                                                          maxgroupsize = max_sites), 
