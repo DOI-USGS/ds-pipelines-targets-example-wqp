@@ -6,30 +6,30 @@
 #' contain characters that cannot be parsed by WQP, including "/". This function
 #' identifies and subsets sites with potentially problematic identifiers.
 #' 
-#' @param sitecounts_df data frame containing the site identifiers. Must contain
+#' @param sites data frame containing the site identifiers. Must contain
 #' column `MonitoringLocationIdentifier`.
 #' 
 #' @returns 
 #' Returns a data frame where each row represents a site with a problematic
 #' identifier, indicated by the new column `site_id`. All other columns within
-#' `sitecounts_df` are retained. Returns an empty data frame if no problematic
-#' site identifiers are found.
+#' `sites` are retained. Returns an empty data frame if no problematic site
+#' identifiers are found.
 #' 
 #' @examples 
 #' siteids <- data.frame(MonitoringLocationIdentifier = 
 #'                         c("USGS-01573482","COE/ISU-27630001"))
 #' identify_bad_ids(siteids)
 #' 
-identify_bad_ids <- function(sitecounts_df){
+identify_bad_ids <- function(sites){
   
   # Check that string format matches regex used in WQP
-  sitecounts_bad_ids <- sitecounts_df %>%
+  sites_bad_ids <- sites %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
     mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+.*[\\S]")) %>%
     filter(site_id != site_id_regex) %>%
     select(-site_id_regex)
 
-  return(sitecounts_bad_ids)
+  return(sites_bad_ids)
 }
 
 
@@ -39,7 +39,7 @@ identify_bad_ids <- function(sitecounts_df){
 #' Function to group inventoried sites into reasonably sized chunks for
 #' downloading data.
 #' 
-#' @param sitecounts_df data frame containing the site identifiers and total 
+#' @param site_counts data frame containing the site identifiers and total 
 #' number of records available for each site. Must contain columns 
 #' `MonitoringLocationIdentifier` and `results_count`.
 #' @param max_sites integer indicating the maximum number of sites allowed in
@@ -49,15 +49,15 @@ identify_bad_ids <- function(sitecounts_df){
 #' 
 #' @returns 
 #' Returns a data frame with columns site id, the total number of records,
-#' (retains the column from `sitecounts_df`), site number, and an additional column 
+#' (retains the column from `site_counts`), site number, and an additional column 
 #' called `download_grp` which is made up of unique groups that enable use of 
 #' `group_by()` and then `tar_group()` for downloading.
 #' 
-add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 250000) {
+add_download_groups <- function(site_counts, max_sites = 500, max_results = 250000) {
   
   # Check whether any individual sites have a records count that exceeds `max_results`
-  if(any(sitecounts_df$results_count > max_results)){
-    sites_w_many_records <- sitecounts_df %>%
+  if(any(site_counts$results_count > max_results)){
+    sites_w_many_records <- site_counts %>%
       filter(results_count > max_results) %>%
       pull(MonitoringLocationIdentifier)
     # Print a message to inform the user that some sites contain a lot of data
@@ -71,7 +71,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   
   # Check whether any sites have identifiers that are likely to cause problems when
   # downloading the data from WQP
-  sitecounts_bad_ids <- identify_bad_ids(sitecounts_df)
+  sitecounts_bad_ids <- identify_bad_ids(site_counts)
   
   # Inform user if we detect any sites with 'bad' identifiers
   if(nrow(sitecounts_bad_ids) > 0){
@@ -83,7 +83,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   }
   
   # Subset 'good' sites with identifiers that can be parsed by WQP
-  sitecounts_good_ids <- sitecounts_df %>%
+  sitecounts_good_ids <- site_counts %>%
     filter(!MonitoringLocationIdentifier %in% sitecounts_bad_ids$site_id)
   
   # Within each unique grid_id, use the cumsumbinning function from the MESS
