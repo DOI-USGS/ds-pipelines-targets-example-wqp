@@ -97,7 +97,7 @@ add_download_groups <- function(site_counts, max_sites = 500, max_results = 2500
       
       df_grouped <- df %>%
         group_by(CharacteristicName) %>%
-        arrange(desc(results_count)) %>%
+        arrange(desc(results_count), .by_group = TRUE) %>%
         # Each group (which represents a different characteristic name) will have
         # task numbers that start with "1", so to create unique task numbers, we
         # add a new column called `task_num` that starts counting the task numbers
