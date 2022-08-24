@@ -6,30 +6,30 @@
 #' contain characters that cannot be parsed by WQP, including "/". This function
 #' identifies and subsets sites with potentially problematic identifiers.
 #' 
-#' @param sitecounts_df data frame containing the site identifiers. Must contain
+#' @param sites data frame containing the site identifiers. Must contain
 #' column `MonitoringLocationIdentifier`.
 #' 
 #' @returns 
 #' Returns a data frame where each row represents a site with a problematic
 #' identifier, indicated by the new column `site_id`. All other columns within
-#' `sitecounts_df` are retained. Returns an empty data frame if no problematic
-#' site identifiers are found.
+#' `sites` are retained. Returns an empty data frame if no problematic site
+#' identifiers are found.
 #' 
 #' @examples 
 #' siteids <- data.frame(MonitoringLocationIdentifier = 
 #'                         c("USGS-01573482","COE/ISU-27630001"))
 #' identify_bad_ids(siteids)
 #' 
-identify_bad_ids <- function(sitecounts_df){
+identify_bad_ids <- function(sites){
   
   # Check that string format matches regex used in WQP
-  sitecounts_bad_ids <- sitecounts_df %>%
+  sites_bad_ids <- sites %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
     mutate(site_id_regex = stringr::str_extract(site_id, "[\\w]+.*[\\S]")) %>%
     filter(site_id != site_id_regex) %>%
     select(-site_id_regex)
 
-  return(sitecounts_bad_ids)
+  return(sites_bad_ids)
 }
 
 
@@ -39,7 +39,7 @@ identify_bad_ids <- function(sitecounts_df){
 #' Function to group inventoried sites into reasonably sized chunks for
 #' downloading data.
 #' 
-#' @param sitecounts_df data frame containing the site identifiers and total 
+#' @param site_counts data frame containing the site identifiers and total 
 #' number of records available for each site. Must contain columns 
 #' `MonitoringLocationIdentifier` and `results_count`.
 #' @param max_sites integer indicating the maximum number of sites allowed in
@@ -49,15 +49,15 @@ identify_bad_ids <- function(sitecounts_df){
 #' 
 #' @returns 
 #' Returns a data frame with columns site id, the total number of records,
-#' (retains the column from `sitecounts_df`), site number, and an additional column 
+#' (retains the column from `site_counts`), site number, and an additional column 
 #' called `download_grp` which is made up of unique groups that enable use of 
 #' `group_by()` and then `tar_group()` for downloading.
 #' 
-add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 250000) {
+add_download_groups <- function(site_counts, max_sites = 500, max_results = 250000) {
   
   # Check whether any individual sites have a records count that exceeds `max_results`
-  if(any(sitecounts_df$results_count > max_results)){
-    sites_w_many_records <- sitecounts_df %>%
+  if(any(site_counts$results_count > max_results)){
+    sites_w_many_records <- site_counts %>%
       filter(results_count > max_results) %>%
       pull(MonitoringLocationIdentifier)
     # Print a message to inform the user that some sites contain a lot of data
@@ -71,7 +71,7 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   
   # Check whether any sites have identifiers that are likely to cause problems when
   # downloading the data from WQP
-  sitecounts_bad_ids <- identify_bad_ids(sitecounts_df)
+  sitecounts_bad_ids <- identify_bad_ids(site_counts)
   
   # Inform user if we detect any sites with 'bad' identifiers
   if(nrow(sitecounts_bad_ids) > 0){
@@ -83,25 +83,38 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
   }
   
   # Subset 'good' sites with identifiers that can be parsed by WQP
-  sitecounts_good_ids <- sitecounts_df %>%
+  sitecounts_good_ids <- site_counts %>%
     filter(!MonitoringLocationIdentifier %in% sitecounts_bad_ids$site_id)
   
-  # Within each unique grid_id, use the cumsumbinning function from the MESS
-  # package to group sites based on the cumulative sum of results_count 
-  # across sites within the grid, resetting the download group/task number 
-  # if the number of records exceeds the threshold set by `max_results`
+  # Within each unique grid_id, use the cumsumbinning function from the MESS package
+  # to group sites based on the cumulative sum of results_count across sites that 
+  # share the same characteristic name, resetting the download group/task number if 
+  # the number of records exceeds the threshold set by `max_results`.
   sitecounts_grouped_good_ids <- sitecounts_good_ids %>%
     rename(site_id = MonitoringLocationIdentifier) %>% 
     split(.$grid_id) %>%
     purrr::map_dfr(.f = function(df){
       
       df_grouped <- df %>%
-        arrange(desc(results_count)) %>%
-        mutate(task_num = MESS::cumsumbinning(x = results_count, 
-                                              threshold = max_results, 
-                                              maxgroupsize = max_sites))
-    }) %>%
-    mutate(pull_by_id = TRUE)
+        group_by(CharacteristicName) %>%
+        arrange(desc(results_count), .by_group = TRUE) %>%
+        mutate(task_num_by_results = MESS::cumsumbinning(x = results_count, 
+                                                         threshold = max_results, 
+                                                         maxgroupsize = max_sites), 
+               char_group = cur_group_id()) %>%
+        ungroup() %>% 
+        # Each group from before (which represents a different characteristic 
+        # name) will have task numbers that start with "1", so now we create 
+        # a new column called `task_num` to create unique task numbers within
+        # each grid. For example, both "Specific conductance" and "Temperature" 
+        # may have values for `task_num_by_results` of 1 and 2 but the values 
+        # of char_group (1 and 2, respectively) would mean that they have unique
+        # values for `task_num` equaling 1, 2, 3, and 4.
+        group_by(char_group, task_num_by_results) %>% 
+        mutate(task_num = cur_group_id()) %>% 
+        ungroup() %>%
+        mutate(pull_by_id = TRUE)
+    }) 
   
   # Assign a separate task number and download group for each site with bad ids
   sitecounts_grouped_bad_ids <- sitecounts_bad_ids %>%
@@ -119,7 +132,8 @@ add_download_groups <- function(sitecounts_df, max_sites = 500, max_results = 25
     mutate(download_grp = sprintf(paste0("%s_%0", nchar(max(task_num)), "d"), 
                                   grid_id, task_num)) %>% 
     arrange(download_grp) %>%
-    select(site_id, lat, lon, datum, results_count, download_grp, pull_by_id) 
+    select(site_id, lat, lon, datum, grid_id, CharacteristicName, results_count, 
+           download_grp, pull_by_id) 
   
   return(sitecounts_grouped_out)
 
@@ -182,7 +196,7 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' download group. Must contain columns `site_id` and `pull_by_id`, where
 #' `pull_by_id` is logical and indicates whether data should be downloaded
 #' using the site identifier or by querying a small bounding box around the site.
-#' @param characteristics vector of character strings indicating which WQP
+#' @param char_names vector of character strings indicating which WQP 
 #' characteristic names to query.
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
@@ -204,12 +218,12 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #'               "Temperature, water", 
 #'               wqp_args = list(siteType = "Stream"))
 #' 
-fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL, 
+fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL, 
                            max_tries = 3, verbose = FALSE){
   
   message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
                   nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
-                  characteristics))
+                  char_names))
   
   # Define arguments for readWQPdata
   # sites with pull_by_id = FALSE cannot be queried by their site
@@ -219,11 +233,11 @@ fetch_wqp_data <- function(site_counts_grouped, characteristics, wqp_args = NULL
   if(unique(site_counts_grouped$pull_by_id)){
     wqp_args_all <- c(wqp_args, 
                       list(siteid = site_counts_grouped$site_id,
-                           characteristicName = c(characteristics)))
+                           characteristicName = c(char_names)))
   } else {
     wqp_args_all <- c(wqp_args, 
                       list(bBox = create_site_bbox(site_counts_grouped),
-                           characteristicName = c(characteristics)))
+                           characteristicName = c(char_names)))
   }
   
   # Define function to pull data, retrying up to the number of times
