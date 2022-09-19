@@ -203,6 +203,8 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' for more information.  
 #' @param max_tries integer, maximum number of attempts if the data download 
 #' step returns an error. Defaults to 3.
+#' @param timeout_minutes integer, the maximum time in minutes that should be 
+#' allowed to elapse before retrying the data download step. Default is 30 minutes.
 #' @param verbose logical, indicates whether messages from {dataRetrieval} should 
 #' be printed to the console in the event that a query returns no data. Defaults 
 #' to FALSE. Note that `verbose` only handles messages, and {dataRetrieval} errors 
@@ -219,7 +221,7 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #'               wqp_args = list(siteType = "Stream"))
 #' 
 fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL, 
-                           max_tries = 3, verbose = FALSE){
+                           max_tries = 3, timeout_minutes = 30, verbose = FALSE){
   
   message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
                   nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
@@ -241,19 +243,38 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
   }
   
   # Define function to pull data, retrying up to the number of times
-  # indicated by `max_tries`
-  pull_data <- function(x){
-    retry::retry(dataRetrieval::readWQPdata(x),
-                 when = "Error:", 
-                 max_tries = max_tries)
+  # indicated by `max_tries`. For any single attempt, stop and retry
+  # if the time elapsed exceeds `timeout_min`. 
+  pull_data <- function(x, timeout_minutes, max_tries){
+    retry::retry(
+      expr = retry::retry(dataRetrieval::readWQPdata(x),
+                          when = "Error:", 
+                          timeout = timeout_minutes*60),
+      when = "Error:",
+      max_tries = max_tries
+      )
   }
   
   # Now pull the data. If verbose == TRUE, print all messages from dataRetrieval,
   # otherwise, suppress messages.
+  timeout_message <- sprintf(paste0("The download attempt reached the elapsed ",
+                                    "time limit for %s successive attempts. ",
+                                    "Timeout errors can be resolved by either ",
+                                    "increasing the max time allowed or by waiting ",
+                                    "and trying again at a later time."),
+                             max_tries)
   if(verbose) {
-    wqp_data <- pull_data(wqp_args_all)
+    wqp_data <- tryCatch(
+      pull_data(wqp_args_all, timeout_minutes, max_tries),
+      error = function(e){
+        stop(timeout_message)
+      })
   } else {
-    wqp_data <- suppressMessages(pull_data(wqp_args_all))
+    wqp_data <- tryCatch(
+      suppressMessages(pull_data(wqp_args_all, timeout_minutes, max_tries)),
+      error = function(e){
+        stop(timeout_message)
+      })
   }
 
   # We applied special handling for sites with pull_by_id = FALSE (see comments
