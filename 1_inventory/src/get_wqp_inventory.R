@@ -60,12 +60,20 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
   }) %>%
     bind_rows()
   
-  # Fetch missing CRS information from WQP
-  site_location_metadata <- dataRetrieval::whatWQPsites(
-    bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax)) %>%
-    select(MonitoringLocationIdentifier, HorizontalCoordinateReferenceSystemDatumName) %>%
-    filter(MonitoringLocationIdentifier %in% wqp_inventory$MonitoringLocationIdentifier)
-  
+  # Fetch missing CRS information from WQP. Note that an empty query will not
+  # contain CRS information. In the event that the lines below throw an error, 
+  # "Column `HorizontalCoordinateReferenceSystemDatumName` doesn't exist", return
+  # an empty data frame for the site location metadata. 
+  site_location_metadata <- tryCatch(
+    dataRetrieval::whatWQPsites(bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax)) %>%
+      select(MonitoringLocationIdentifier, HorizontalCoordinateReferenceSystemDatumName) %>%
+      filter(MonitoringLocationIdentifier %in% wqp_inventory$MonitoringLocationIdentifier),
+    error = function(e){
+      data.frame(MonitoringLocationIdentifier = character(), 
+                 HorizontalCoordinateReferenceSystemDatumName = character())
+    }
+  )
+
   # Join WQP inventory with site metadata 
   wqp_inventory_out <- wqp_inventory %>%
     left_join(site_location_metadata, by = "MonitoringLocationIdentifier")
