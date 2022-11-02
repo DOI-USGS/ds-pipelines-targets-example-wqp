@@ -69,7 +69,7 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
       select(MonitoringLocationIdentifier, HorizontalCoordinateReferenceSystemDatumName) %>%
       filter(MonitoringLocationIdentifier %in% wqp_inventory$MonitoringLocationIdentifier),
     error = function(e){
-      data.frame(MonitoringLocationIdentifier = character())
+      data.frame(MonitoringLocationIdentifier = character(), HorizontalCoordinateReferenceSystemDatumName = character())
     }
   )
 
