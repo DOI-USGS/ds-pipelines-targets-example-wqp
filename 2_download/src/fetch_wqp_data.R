@@ -203,12 +203,10 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' for more information.  
 #' @param max_tries integer, maximum number of attempts if the data download 
 #' step returns an error. Defaults to 3.
-#' @param timeout_minutes integer, the maximum time in minutes that should be 
-#' allowed to elapse before retrying the data download step. Default is 30 minutes.
-#' @param verbose logical, indicates whether messages from {dataRetrieval} should 
-#' be printed to the console in the event that a query returns no data. Defaults 
-#' to FALSE. Note that `verbose` only handles messages, and {dataRetrieval} errors 
-#' or warnings will still get passed up to `fetch_wqp_data`. 
+#' @param timeout_minutes_per_site integer, the maximum time per site that should
+#' be allowed to elapse before retrying the data download step (in minutes).
+#' Default is 5 minutes. The total time used for the retry is calculated by 
+#' number of sites * `timeout_minutes_per_site`.
 #' 
 #' @returns
 #' Returns a data frame containing data downloaded from the Water Quality Portal, 
@@ -216,12 +214,10 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' 
 #' @examples
 #' site_counts <- data.frame(site_id = c("USGS-01475850"), pull_by_id = c(TRUE))
-#' fetch_wqp_data(site_counts, 
-#'               "Temperature, water", 
-#'               wqp_args = list(siteType = "Stream"))
+#' fetch_wqp_data(site_counts, "Temperature, water", wqp_args = list(siteType = "Stream"))
 #' 
 fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL, 
-                           max_tries = 3, timeout_minutes = 30, verbose = FALSE){
+                           max_tries = 3, timeout_minutes_per_site = 5){
   
   message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
                   nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
@@ -232,7 +228,7 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
   # identifiers because of undesired characters that will cause the WQP
   # query to fail. For those sites, query WQP by adding a small bounding
   # box around the site(s) and including bBox in the wqp_args.
-  if(unique(site_counts_grouped$pull_by_id)){
+  if(all(site_counts_grouped$pull_by_id)){
     wqp_args_all <- c(wqp_args, 
                       list(siteid = site_counts_grouped$site_id,
                            characteristicName = c(char_names)))
@@ -244,7 +240,9 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
   
   # Define function to pull data, retrying up to the number of times
   # indicated by `max_tries`. For any single attempt, stop and retry
-  # if the time elapsed exceeds `timeout_min`. 
+  # if the time elapsed exceeds `timeout_min`. Use at least 1 min
+  # so that it doesn't error if `length(site_ids == 0)`
+  timeout_minutes <- 1 + timeout_minutes_per_site * length(site_counts_grouped$site_id)
   pull_data <- function(x, timeout_minutes, max_tries){
     retry::retry(
       expr = retry::retry(dataRetrieval::readWQPdata(x),
@@ -255,27 +253,19 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
       )
   }
   
-  # Now pull the data. If verbose == TRUE, print all messages from dataRetrieval,
-  # otherwise, suppress messages.
+  # Pull the data
   timeout_message <- sprintf(paste0("The download attempt reached the elapsed ",
                                     "time limit for %s successive attempts. ",
                                     "Timeout errors can be resolved by either ",
                                     "increasing the max time allowed or by waiting ",
                                     "and trying again at a later time."),
                              max_tries)
-  if(verbose) {
-    wqp_data <- tryCatch(
-      pull_data(wqp_args_all, timeout_minutes, max_tries),
-      error = function(e){
-        stop(timeout_message)
-      })
-  } else {
-    wqp_data <- tryCatch(
-      suppressMessages(pull_data(wqp_args_all, timeout_minutes, max_tries)),
-      error = function(e){
-        stop(timeout_message)
-      })
-  }
+  
+  wqp_data <- tryCatch(
+    pull_data(wqp_args_all, timeout_minutes, max_tries),
+    error = function(e){
+      stop(timeout_message)
+    })
 
   # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped
