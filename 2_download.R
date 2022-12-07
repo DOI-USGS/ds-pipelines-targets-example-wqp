@@ -1,4 +1,5 @@
 # Source the functions that will be used to build the targets in p2_targets_list
+source("2_download/src/fetch_wqp_helpers.R")
 source("2_download/src/fetch_wqp_data.R")
 source("2_download/src/summarize_wqp_download.R")
 
