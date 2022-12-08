@@ -2,7 +2,7 @@ library(targets)
 
 options(tidyverse.quiet = TRUE)
 tar_option_set(packages = c('tidyverse', 'lubridate', 'dataRetrieval', 
-                            'sf', 'xml2', 'units', 'retry', 'MESS'))
+                            'sf', 'xml2', 'units', 'R.utils', 'MESS'))
 
 source("1_inventory.R")
 source("2_download.R")
