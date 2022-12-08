@@ -17,7 +17,7 @@
 #' @returns 
 #' If successful, returns the output of the R expression. If the expression
 #' fails to successfully evaluate within the allowable elapsed time and 
-#' maximum number of attempts, this function will throw an error. 
+#' maximum number of attempts, returns an empty data frame.
 #' 
 retry_with_timeout <- function(expr, ..., max_tries, timeout_minutes, sleep_on_error = 0, verbose = FALSE){
   
