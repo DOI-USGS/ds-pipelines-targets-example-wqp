@@ -57,11 +57,11 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
   # `timeout_minutes`. Use at least 1 min so that it doesn't error if 
   # `length(site_ids) == 0`
   timeout_minutes <- 1 + timeout_minutes_per_site * length(site_counts_grouped$site_id)
-  timeout_message <- sprintf(paste0("The download attempt reached the elapsed ",
-                                    "time limit for %s successive attempts. ",
+  timeout_message <- sprintf(paste0("The download attempt failed after %s successive ",
+                                    "attempts. This may be due to a timeout error. ",
                                     "Timeout errors can be resolved by either ",
                                     "increasing the max time allowed or by waiting ",
-                                    "and trying again at a later time."),
+                                    "and trying again later."),
                              max_tries)
   
   wqp_data <- retry_with_timeout(dataRetrieval::readWQPdata, wqp_args_all, 
