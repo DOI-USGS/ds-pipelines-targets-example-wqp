@@ -1,4 +1,4 @@
-source("2_download/src/retry_with_timeout.R")
+source("2_download/src/retry.R")
 
 #' @title Download data from the Water Quality Portal
 #' 
@@ -7,8 +7,8 @@ source("2_download/src/retry_with_timeout.R")
 #' 
 #' @details 
 #' This function will retry the data pull if the initial request fails or if
-#' the query takes too long to return results. See `retry_with_timeout` for
-#' more information about retry handling. 
+#' the query takes too long to return results. See `retry` for more information
+#' about retry handling. 
 #'  
 #' @param site_counts_grouped data frame containing a row for each site. Columns 
 #' contain the site identifiers, the total number of records, and an assigned
@@ -64,11 +64,17 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
                                     "and trying again later."),
                              max_tries)
   
-  wqp_data <- retry_with_timeout(dataRetrieval::readWQPdata, wqp_args_all, 
-                                 max_tries = max_tries, 
-                                 timeout_minutes = timeout_minutes,
-                                 sleep_on_error = sleep_on_error,
-                                 verbose = verbose)
+  # specify max time allowed (in seconds) to execute data pull
+  httr::set_config(httr::timeout(timeout_minutes*60))
+  
+  # pull the data
+  wqp_data <- retry(dataRetrieval::readWQPdata, wqp_args_all, 
+                    max_tries = max_tries, 
+                    sleep_on_error = sleep_on_error,
+                    verbose = verbose)
+  
+  # reset global httr configuration
+  httr::reset_config()
   
   # Throw an error if the request comes back empty
   if(is.data.frame(wqp_data) && nrow(wqp_data) == 0){

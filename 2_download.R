@@ -37,6 +37,8 @@ p2_targets_list <- list(
   # will therefore need to be resolved before the full target can be successfully 
   # built. A common reason a branch may fail is due to WQP timeout errors. Timeout 
   # errors can sometimes be resolved by waiting a few hours and retrying tar_make().
+  # See 2_download/src/fetch_wqp_data.R for more information about timeouts and 
+  # retry handling. 
   tar_target(
     p2_wqp_data_aoi,
     fetch_wqp_data(p2_site_counts_grouped, 

@@ -1,13 +1,14 @@
 #' @title Retry evaluating an expression with timeout
 #' 
 #' @description
-#' Function to repeatedly try evaluating an expression with timeout,
-#' up to a maximum number of retry attempts.
+#' @title Retry evaluating an expression
+#' 
+#' @description
+#' Function to repeatedly try evaluating an expression, up to a maximum number
+#' of retry attempts.
 #' 
 #' @param expr expression to be evaluated.
-#' @param max_retries integer indicating the maximum number of retry attempts.
-#' @param timeout_minutes integer indicating how long (in minutes) the
-#' expression is allowed to run before being interrupted by the timeout.
+#' @param max_tries integer indicating the maximum number of retry attempts.
 #' @param sleep_on_error integer indicating how long (in seconds) we should wait 
 #' before making another attempt. Defaults to zero.
 #' @param verbose logical; should messages about retry status be printed to the
@@ -16,26 +17,20 @@
 #' 
 #' @returns 
 #' If successful, returns the output of the R expression. If the expression
-#' fails to successfully evaluate within the allowable elapsed time and 
-#' maximum number of attempts, returns an empty data frame.
+#' fails to successfully evaluate within the maximum number of attempts, 
+#' returns an empty data frame.
 #' 
-retry_with_timeout <- function(expr, ..., max_tries, timeout_minutes, sleep_on_error = 0, verbose = FALSE){
+retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
   
   # evaluate expr in a loop, with retries
   this_try <- 1
-  
   while(this_try <= max_tries){
+    # run the desired function
+    result <- tryCatch(expr = do.call(expr, ...), 
+                       error = function(ex){
+                         return(data.frame())
+                       })
     
-    # run the desired function, but throw an error if it takes too long
-    result <- tryCatch(
-      expr = R.utils::withTimeout(expr = do.call(expr, ...), 
-                                  timeout = timeout_minutes*60,
-                                  onTimeout = "error"),
-      error = function(ex){
-        return(data.frame())
-      }
-    )
-
     # check for success or failure, retrying up to the number of attempts
     # indicated by `max_tries`.
     if(is.data.frame(result) && nrow(result) == 0){
@@ -59,9 +54,3 @@ retry_with_timeout <- function(expr, ..., max_tries, timeout_minutes, sleep_on_e
   return(result)
 }
 
-
-
-
-
-
-  
