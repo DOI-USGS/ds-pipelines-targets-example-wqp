@@ -7,8 +7,8 @@ source("2_download/src/retry.R")
 #' 
 #' @details 
 #' This function will retry the data pull if the initial request fails or if
-#' the query takes too long to return results. See `retry` for more information
-#' about retry handling. 
+#' the query takes too long to return results. See `retry_with_timeout` for 
+#' more information about retry handling and for argument descriptions. 
 #'  
 #' @param site_counts_grouped data frame containing a row for each site. Columns 
 #' contain the site identifiers, the total number of records, and an assigned
@@ -29,9 +29,13 @@ source("2_download/src/retry.R")
 #' site_counts <- data.frame(site_id = c("USGS-01475850"), pull_by_id = c(TRUE))
 #' fetch_wqp_data(site_counts, "Temperature, water", wqp_args = list(siteType = "Stream"))
 #' 
-fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL, 
-                           max_tries = 3, timeout_minutes_per_site = 5, 
-                           sleep_on_error = 0, verbose = FALSE){
+fetch_wqp_data <- function(site_counts_grouped, 
+                           char_names, 
+                           wqp_args = NULL, 
+                           max_tries = 3, 
+                           timeout_minutes_per_site = 5, 
+                           sleep_on_error = 0, 
+                           verbose = FALSE){
   
   message(sprintf("Retrieving WQP data for %s sites in group %s, %s",
                   nrow(site_counts_grouped), unique(site_counts_grouped$download_grp), 
@@ -55,31 +59,14 @@ fetch_wqp_data <- function(site_counts_grouped, char_names, wqp_args = NULL,
   # Pull the data, retrying up to the number of times indicated by `max_tries`.
   # For any single attempt, stop and retry if the time elapsed exceeds
   # `timeout_minutes`. Use at least 1 min so that it doesn't error if 
-  # `length(site_ids) == 0`
+  # `length(site_counts_grouped$site_ids) == 0`
   timeout_minutes <- 1 + timeout_minutes_per_site * length(site_counts_grouped$site_id)
-  timeout_message <- sprintf(paste0("The download attempt failed after %s successive ",
-                                    "attempts. This may be due to a timeout error. ",
-                                    "Timeout errors can be resolved by either ",
-                                    "increasing the max time allowed or by waiting ",
-                                    "and trying again later."),
-                             max_tries)
   
-  # specify max time allowed (in seconds) to execute data pull
-  httr::set_config(httr::timeout(timeout_minutes*60))
-  
-  # pull the data
-  wqp_data <- retry(dataRetrieval::readWQPdata, wqp_args_all, 
-                    max_tries = max_tries, 
-                    sleep_on_error = sleep_on_error,
-                    verbose = verbose)
-  
-  # reset global httr configuration
-  httr::reset_config()
-  
-  # Throw an error if the request comes back empty
-  if(is.data.frame(wqp_data) && nrow(wqp_data) == 0){
-    stop(timeout_message)
-  }
+  wqp_data <- retry_with_timeout(dataRetrieval::readWQPdata, wqp_args_all,
+                                 timeout_minutes = timeout_minutes,
+                                 max_tries = max_tries, 
+                                 sleep_on_error = sleep_on_error,
+                                 verbose = verbose)
 
   # We applied special handling for sites with pull_by_id = FALSE (see comments
   # above). Filter wqp_data to only include sites requested in site_counts_grouped

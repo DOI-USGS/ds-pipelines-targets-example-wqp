@@ -1,6 +1,3 @@
-#' @title Retry evaluating an expression with timeout
-#' 
-#' @description
 #' @title Retry evaluating an expression
 #' 
 #' @description
@@ -28,6 +25,7 @@ retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
     # run the desired function
     result <- tryCatch(expr = do.call(expr, ...), 
                        error = function(ex){
+                         message(ex)
                          return(data.frame())
                        })
     
@@ -52,5 +50,50 @@ retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
     }
   }
   return(result)
+}
+
+
+#' @title Retry data download with timeout
+#' 
+#' @description 
+#' Function to repeatedly try evaluating an expression that requests data from
+#' a remote server using the httr API. 
+#' 
+#' @details 
+#' This function uses the {httr} package to configure the maximum time that should
+#' be allowed to elapse for any single request attempt. This function will retry
+#' the request if the initial request fails or if the request takes too long to 
+#' return results. See `retry` for more information about retry handling and for 
+#' additional argument descriptions. 
+#' 
+#' @param expr expression to be evaluated.
+#' @param timeout_minutes integer; indicates the maximum time that should be
+#' allowed to elapse before retrying the request.  
+#' @param ... list object containing additional arguments to be passed to `expr`
+#' 
+#' @returns 
+#' If successful, returns the output of the R expression. If the request fails
+#' within the maximum number of attempts, returns an empty data frame.
+#' 
+retry_with_timeout <- function(expr, timeout_minutes, max_tries, sleep_on_error, verbose, ...){
+
+# specify max time allowed (in seconds) to execute data pull
+httr::set_config(httr::timeout(timeout_minutes*60))
+
+# pull the data
+dat <- retry(expr, ..., 
+             max_tries = max_tries, 
+             sleep_on_error = sleep_on_error,
+             verbose = verbose)
+
+# reset global httr configuration
+httr::reset_config()
+
+# Throw an error if the request comes back empty
+if(is.data.frame(dat) && nrow(dat) == 0){
+  stop(sprintf("The download attempt failed after %s successive attmpts.", max_tries))
+}
+
+return(dat)
 }
 
