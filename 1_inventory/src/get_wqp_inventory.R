@@ -1,8 +1,15 @@
+source("2_download/src/retry.R")
+
 #' @title Inventory available data from the Water Quality Portal (WQP)
 #' 
 #' @description 
 #' Function to inventory WQP sites and records within grid cells that overlap
 #' the area of interest.
+#' 
+#' @details 
+#' This function will retry the WQP query if the initial request fails, up to
+#' the maximum number of attempts indicated by `max_tries`. See 
+#' `2_download/src/retry.R` for more information about retry handling.
 #'  
 #' @param grid sf object representing the area over which to query the WQP.
 #' @param char_names character string or list of character strings indicating 
@@ -10,8 +17,11 @@
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.  
-#' @param max_tries integer, maximum number of attempts if the data download 
-#' step returns an error. Defaults to 3.
+#' @param max_tries integer indicating the maximum number of retry attempts.
+#' @param sleep_on_error integer indicating how long (in seconds) we should wait 
+#' before making another attempt. Defaults to zero.
+#' @param verbose logical; should messages about retry status be printed to the
+#' console? Defaults to FALSE. 
 #' 
 #' @returns 
 #' Returns a data frame with a row for each site within the Water Quality 
@@ -28,7 +38,8 @@
 # explicitly load and attach sf package to handle geometry data in `grid`
 library(sf)
 
-inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
+inventory_wqp <- function(grid, char_names, wqp_args = NULL, 
+                          max_tries = 3, sleep_on_error = 0, verbose = FALSE){
   
   # First, check dataRetrieval package version and inform user if outdated
   if(packageVersion('dataRetrieval') < "2.7.6.9003"){
@@ -48,16 +59,19 @@ inventory_wqp <- function(grid, char_names, wqp_args = NULL, max_tries = 3){
                   grid$id, char_names))
 
   # Inventory available WQP data
-  wqp_inventory <- lapply(char_names,function(x){
+  wqp_inventory <- lapply(char_names, function(x){
     # define arguments for whatWQPdata
-    wqp_args_all <- c(wqp_args, list(bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax),
-                                     characteristicName = x))
+    wqp_args_all <- c(wqp_args, 
+                      list(bBox = c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax),
+                           characteristicName = x))
     # query WQP
-    retry::retry(dataRetrieval::whatWQPdata(wqp_args_all),
-                 when = "Error:", 
-                 max_tries = max_tries) %>%
-      mutate(CharacteristicName = x, grid_id = grid$id)
-  }) %>%
+    dat <- retry(dataRetrieval::whatWQPdata, wqp_args_all, 
+                 max_tries = max_tries,
+                 sleep_on_error = sleep_on_error,
+                 verbose = verbose) 
+    dat_out <- mutate(dat, CharacteristicName = x, grid_id = grid$id)
+    return(dat_out)
+    }) %>%
     bind_rows()
   
   # Fetch missing CRS information from WQP. Note that an empty query will not
