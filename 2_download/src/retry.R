@@ -25,7 +25,7 @@ retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
     # run the desired function
     result <- tryCatch(expr = do.call(expr, ...), 
                        error = function(ex){
-                         message(ex)
+                         message(paste0(ex,"\n"))
                          return(data.frame())
                        })
     
@@ -53,11 +53,11 @@ retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
 }
 
 
-#' @title Retry data download with timeout
+#' @title Pull data in a fault-tolerant way
 #' 
 #' @description 
 #' Function to repeatedly try evaluating an expression that requests data from
-#' a remote server using the httr API. 
+#' a remote server, for example, using a web API.
 #' 
 #' @details 
 #' This function uses the {httr} package to configure the maximum time that should
@@ -75,7 +75,7 @@ retry <- function(expr, max_tries, sleep_on_error = 0, verbose = FALSE, ...){
 #' If successful, returns the output of the R expression. If the request fails
 #' within the maximum number of attempts, returns an empty data frame.
 #' 
-retry_with_timeout <- function(expr, timeout_minutes, max_tries, sleep_on_error, verbose, ...){
+pull_data_safely <- function(expr, timeout_minutes, max_tries, sleep_on_error, verbose, ...){
 
 # specify max time allowed (in seconds) to execute data pull
 httr::set_config(httr::timeout(timeout_minutes*60))
@@ -88,11 +88,6 @@ dat <- retry(expr, ...,
 
 # reset global httr configuration
 httr::reset_config()
-
-# Throw an error if the request comes back empty
-if(is.data.frame(dat) && nrow(dat) == 0){
-  stop(sprintf("The download attempt failed after %s successive attmpts.", max_tries))
-}
 
 return(dat)
 }
