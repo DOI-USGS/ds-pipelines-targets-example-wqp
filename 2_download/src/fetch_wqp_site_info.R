@@ -1,13 +1,13 @@
-#' @title Fetch WQP site info 
+#' @title Fetch WQP site metadata
 #' 
 #' @description 
-#' Function to fetch site location metadata from WQP data tables
+#' Function to pull site location metadata from the WQP data attributes.
 #' 
 #' @details 
-#' Data downloaded from WQP contain an appended attribute called "siteInfo" 
-#' by default. These attributes are not retained when targets maps across the
-#' groups of sites to build `p2_wqp_data_aoi` and so this function pulls out
-#' the site information for each branch within `p2_wqp_data_aoi` and then binds
+#' Data downloaded from WQP using `dataRetrieval` contain an appended attribute 
+#' called "siteInfo" by default. These attributes are not retained when `targets`
+#' maps across the groups of sites to build `p2_wqp_data_aoi`. This function pulls
+#' out the site information for each branch within `p2_wqp_data_aoi` and then binds
 #' the rows into a single data frame.
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
@@ -18,7 +18,7 @@
 #' some records contain character strings when we expect numeric values.
 #' To bind the records together, all columns are formatted as character.
 #'
-fetch_wqp_sites <- function(wqp_data){
+fetch_wqp_site_info <- function(wqp_data){
 
   # Some records return character strings when we expect numeric values, e.g. if
   # `HorizontalAccuracyMeasure.MeasureValue == "Unknown"`. For now, format all 

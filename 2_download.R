@@ -1,7 +1,7 @@
 # Source the functions that will be used to build the targets in p2_targets_list
 source("2_download/src/fetch_wqp_helpers.R")
 source("2_download/src/fetch_wqp_data.R")
-source("2_download/src/fetch_wqp_sites.R")
+source("2_download/src/fetch_wqp_site_info.R")
 source("2_download/src/summarize_wqp_download.R")
 
 p2_targets_list <- list(
@@ -48,15 +48,13 @@ p2_targets_list <- list(
     error = "continue"
   ),
   
-  # Fetch site metadata information that was downloaded along with the WQP data;
-  # resulting data frame contains one row for each record in `p2_wqp_data_aoi`
+  # Fetch site metadata that was downloaded along with the WQP data in 
+  # `p2_wqp_data_aoi`. Then reduce site info to return one row per unique site.
   tar_target(
     p2_wqp_site_info_all_records,
-    fetch_wqp_sites(p2_wqp_data_aoi),
+    fetch_wqp_site_info(p2_wqp_data_aoi),
     pattern = map(p2_wqp_data_aoi)
   ),
-  
-  # Reduce site metadata to return one row per site
   tar_target(
     p2_wqp_site_info,
     distinct(p2_wqp_site_info_all_records)
