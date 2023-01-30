@@ -6,7 +6,7 @@
 #' @details 
 #' This function will make multiple attempts to call the WQP "Station" service
 #' if the initial request fails or if the query takes too long to return results.
-#' See `2_download/src/retry.R` for more information about retry handling. See
+#' See `2_download/src/retry.R` for more information about retry handling.
 #' 
 #' @param site_ids character string or character vector indicating the site
 #' identifiers to request from the WQP "Station" service.
