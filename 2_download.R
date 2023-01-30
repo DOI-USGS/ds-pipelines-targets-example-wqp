@@ -49,16 +49,20 @@ p2_targets_list <- list(
     error = "continue"
   ),
   
-  # Fetch site metadata for all sites in each download group. Then reduce site
-  # info to return one row for each unique site.
+  # Split the site ids into reasonably sized groups for pulling the site metadata
   tar_target(
-    p2_wqp_site_info_all_records,
-    fetch_wqp_site_info(site_ids = unique(p2_site_counts_grouped$site_id)),
-    pattern = map(p2_site_counts_grouped)
+    p2_wqp_site_ids_grouped,
+    add_site_groups(site_ids = p2_site_counts_grouped$site_id, max_sites = 500) %>%
+      group_by(site_group) %>%
+      tar_group(),
+    iteration = "group"
   ),
+  
+  # Fetch site metadata for each unique site identifier
   tar_target(
     p2_wqp_site_info,
-    distinct(p2_wqp_site_info_all_records)
+    fetch_wqp_site_info(site_ids = p2_wqp_site_ids_grouped$site_id),
+    pattern = map(p2_wqp_site_ids_grouped)
   ),
   
   # Summarize the data downloaded from the WQP

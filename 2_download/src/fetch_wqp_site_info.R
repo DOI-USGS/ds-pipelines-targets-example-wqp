@@ -1,3 +1,29 @@
+#' @title Group unique site identifiers
+#' 
+#' @description 
+#' Function to split unique WQP site identifiers into smaller groups to 
+#' facilitate reasonably sized requests to the WQP "Station" service. 
+#' 
+#' @param site_ids character vector indicating the site identifiers that will
+#' be split into distinct groups based on the some number of max sites.
+#' @param max_sites integer indicating the maximum number of sites allowed in
+#' each group. Defaults to 500.
+#' 
+#' @returns 
+#' Returns a data frame with columns "site_id" and "site_group".
+#' 
+add_site_groups <- function(site_ids, max_sites){
+  
+  site_ids_grouped <- tibble(site_id = site_ids) %>%
+    distinct() %>%
+    group_by(site_group = ceiling(row_number()/max_sites)) %>%
+    ungroup()
+  
+  return(site_ids_grouped)
+}
+
+
+
 #' @title Fetch WQP site metadata
 #' 
 #' @description 
