@@ -1,4 +1,5 @@
 # Source the functions that will be used to build the targets in p2_targets_list
+source("2_download/src/retry.R")
 source("2_download/src/fetch_wqp_helpers.R")
 source("2_download/src/fetch_wqp_data.R")
 source("2_download/src/fetch_wqp_site_info.R")
@@ -48,12 +49,12 @@ p2_targets_list <- list(
     error = "continue"
   ),
   
-  # Fetch site metadata that was downloaded along with the WQP data in 
-  # `p2_wqp_data_aoi`. Then reduce site info to return one row per unique site.
+  # Fetch site metadata for all sites in each download group. Then reduce site
+  # info to return one row for each unique site.
   tar_target(
     p2_wqp_site_info_all_records,
-    fetch_wqp_site_info(p2_wqp_data_aoi),
-    pattern = map(p2_wqp_data_aoi)
+    fetch_wqp_site_info(site_ids = unique(p2_site_counts_grouped$site_id)),
+    pattern = map(p2_site_counts_grouped)
   ),
   tar_target(
     p2_wqp_site_info,

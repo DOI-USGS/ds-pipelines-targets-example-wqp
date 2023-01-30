@@ -1,5 +1,3 @@
-source("2_download/src/retry.R")
-
 #' @title Download data from the Water Quality Portal
 #' 
 #' @description 
