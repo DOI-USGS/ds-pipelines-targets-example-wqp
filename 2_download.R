@@ -1,6 +1,8 @@
 # Source the functions that will be used to build the targets in p2_targets_list
+source("2_download/src/retry.R")
 source("2_download/src/fetch_wqp_helpers.R")
 source("2_download/src/fetch_wqp_data.R")
+source("2_download/src/fetch_wqp_site_info.R")
 source("2_download/src/summarize_wqp_download.R")
 
 p2_targets_list <- list(
@@ -45,6 +47,22 @@ p2_targets_list <- list(
                    wqp_args = wqp_args),
     pattern = map(p2_site_counts_grouped),
     error = "continue"
+  ),
+  
+  # Split the site ids into reasonably sized groups for pulling the site metadata
+  tar_target(
+    p2_wqp_site_ids_grouped,
+    add_site_groups(site_ids = p2_site_counts_grouped$site_id, max_sites = 500) %>%
+      group_by(site_group) %>%
+      tar_group(),
+    iteration = "group"
+  ),
+  
+  # Fetch site metadata for each unique site identifier
+  tar_target(
+    p2_wqp_site_info,
+    fetch_wqp_site_info(site_ids = p2_wqp_site_ids_grouped$site_id),
+    pattern = map(p2_wqp_site_ids_grouped)
   ),
   
   # Summarize the data downloaded from the WQP

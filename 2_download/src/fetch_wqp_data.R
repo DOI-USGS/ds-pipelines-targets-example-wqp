@@ -1,5 +1,3 @@
-source("2_download/src/retry.R")
-
 #' @title Download data from the Water Quality Portal
 #' 
 #' @description 
@@ -20,6 +18,9 @@ source("2_download/src/retry.R")
 #' @param wqp_args list containing additional arguments to pass to whatWQPdata(),
 #' defaults to NULL. See https://www.waterqualitydata.us/webservices_documentation 
 #' for more information.
+#' @param ignore_attributes logical; should site and parameter attributes be 
+#' appended to the data (FALSE) or left out/ignored (TRUE)? Default is TRUE since
+#' site location metadata is retrieved separately within the pipeline. 
 #' @param max_tries integer indicating the maximum number of retry attempts.
 #' @param timeout_minutes_per_site integer; indicates the maximum time that should be
 #' allowed to elapse per site before retrying the data download step. The total time
@@ -41,6 +42,7 @@ source("2_download/src/retry.R")
 fetch_wqp_data <- function(site_counts_grouped, 
                            char_names, 
                            wqp_args = NULL, 
+                           ignore_attributes = TRUE,
                            max_tries = 3, 
                            timeout_minutes_per_site = 5, 
                            sleep_on_error = 0, 
@@ -58,11 +60,13 @@ fetch_wqp_data <- function(site_counts_grouped,
   if(all(site_counts_grouped$pull_by_id)){
     wqp_args_all <- c(wqp_args, 
                       list(siteid = site_counts_grouped$site_id,
-                           characteristicName = c(char_names)))
+                           characteristicName = c(char_names),
+                           ignore_attributes = ignore_attributes))
   } else {
     wqp_args_all <- c(wqp_args, 
                       list(bBox = create_site_bbox(site_counts_grouped),
-                           characteristicName = c(char_names)))
+                           characteristicName = c(char_names),
+                           ignore_attributes = ignore_attributes))
   }
 
   # Pull the data, retrying up to the number of times indicated by `max_tries`.
