@@ -16,8 +16,7 @@ add_site_groups <- function(site_ids, max_sites){
   
   site_ids_grouped <- tibble(site_id = site_ids) %>%
     distinct() %>%
-    group_by(site_group = ceiling(row_number()/max_sites)) %>%
-    ungroup()
+    mutate(site_group = ceiling(row_number()/max_sites))
   
   return(site_ids_grouped)
 }
