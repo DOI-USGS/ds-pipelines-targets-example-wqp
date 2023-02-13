@@ -195,6 +195,13 @@ transform_site_locations <- function(sites, crs_out = "WGS84"){
 #' 
 subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   
+  # First, check that the inventory is not empty
+  if(nrow(wqp_inventory) == 0){
+    stop(paste0("The WQP inventory is empty. No sites matching the requested ",
+                "inputs were returned during the inventory step. Change the ",
+                "input arguments and try again."))
+  }
+  
   # Harmonize different coordinate reference systems used across sites
   queried_sites_transformed <- transform_site_locations(wqp_inventory, crs_out= "WGS84") 
   queried_sites_transformed_sf <- sf::st_as_sf(queried_sites_transformed, 
