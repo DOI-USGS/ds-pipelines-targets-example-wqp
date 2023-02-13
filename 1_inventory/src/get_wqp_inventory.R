@@ -198,7 +198,8 @@ subset_inventory <- function(wqp_inventory, aoi_sf, buffer_dist_m = 0){
   # First, check that the inventory is not empty
   if(nrow(wqp_inventory) == 0){
     stop(paste0("The WQP inventory is empty. No sites matching the requested ",
-                "input arguments were returned during the inventory step."))
+                "inputs were returned during the inventory step. Change the ",
+                "input arguments and try again."))
   }
   
   # Harmonize different coordinate reference systems used across sites
