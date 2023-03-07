@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+<b>2023-03-07</b>  
+ * Add provisional documents for DOI-USGS migration
+
 <b>2022-12-19</b>  
  * Add timeout settings and retry handling to data download step to make large data pulls more fault-tolerant
 
