@@ -14,12 +14,12 @@
         }
       ]
     },
-    "homepageURL": "https://github.com/USGS-R/ds-pipelines-targets-example-wqp/",
-    "downloadURL": "https://github.com/USGS-R/ds-pipelines-targets-example-wqp/archive/refs/heads/main.zip",
-    "disclaimerURL": "https://github.com/USGS-R/ds-pipelines-targets-example-wqp/blob/main/DISCLAIMER.md",
-    "repositoryURL": "https://github.com/USGS-R/ds-pipelines-targets-example-wqp.git",
+    "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/",
+    "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/heads/main.zip",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/blob/main/DISCLAIMER.md",
+    "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
-    "laborHours": -1,
+    "laborHours": 100,
     "tags": [
       "R",
       "USGS"
@@ -28,18 +28,18 @@
       "R"
     ],
     "contact": {
-      "name": "lekoenig",
-      "email": "FILL ME IN"
+      "name": "Lauren Koenig-Snyder",
+      "email": "lkoenigsnyder@usgs.gov"
     },
     "date": {
-      "metadataLastUpdated": "2023-03-03"
+      "metadataLastUpdated": "2023-03-07"
     }
   },
   {
     "name": "",
     "organization": "U.S. Geological Survey",
     "description": "",
-    "version": "v0.0.0",
+    "version": "v0.1.0",
     "status": "Ideation",
     "permissions": {
       "usageType": "openSource",
@@ -55,7 +55,7 @@
     "disclaimerURL": "",
     "repositoryURL": "",
     "vcs": "git",
-    "laborHours": 1,
+    "laborHours": 300,
     "tags": [
       "R",
       "USGS"
