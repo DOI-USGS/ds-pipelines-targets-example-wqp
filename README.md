@@ -167,6 +167,26 @@ source("3_harmonize/src/clean_nitrate_data.R")
 
 If the pipeline has been run previously, only the nitrate data will be impacted by this addition and the `targets` branches corresponding to the conductivity and temperature data subsets will be skipped over when building `p3_wqp_data_aoi_clean_param`.
 
+### Troubleshooting large-scale data pulls
+The pipeline code attempts to split large data requests into smaller groups for download (discussed further in the "Comments on pipeline design" section below). `targets` downloads the data for the individual download groups and then combines the results into a single data frame in `p2_wqp_data_aoi`. This approach may not work well in all cases, and large-scale data pulls may even result in memory allocation errors if the data frame size exceeds the memory space available to R. 
+
+An alternative pattern is to save intermediate files that contain the data downloaded for each download group in `p2_site_counts_grouped`. The target `p2_wqp_data_aoi` can be modified to use an optional helper function that saves the intermediate files instead of returning a data frame, as shown 
+below. Note that any downstream targets that are expecting a data frame would need to be updated to use the intermediate files instead. 
+
+```r
+  tar_target(
+    p2_wqp_data_csv,
+    fetch_and_save_wqp_data(site_counts_grouped = p2_site_counts_grouped,
+                            char_names = unique(p2_site_counts_grouped$CharacteristicName),
+                            wqp_args = wqp_args,
+                            fileout = sprintf("2_download/out/wqp_data_grp_%s.csv",
+                                              unique(p2_site_counts_grouped$tar_group))),
+    pattern = map(p2_site_counts_grouped),
+    format = "file",
+    error = "continue"
+  ),
+```
+
 
 ## Comments on pipeline design 
 This data pipeline is built around the central idea that smaller queries to the WQP are more likely to succeed and therefore, most workflows that pull WQP data would benefit from dividing larger requests into smaller ones. There are many different ways we could have gone about grouping or "chunking" data queries. We use `targets` ["branching"](https://books.ropensci.org/targets/dynamic.html) capabilities to apply (or _map_) our data inventory and download functions over discrete spatial units represented by grids that overlap our area of interest. Another valid approach would have been to generate `targets` branches over units of time, which might work well for applications where we have a defined spatial extent and just want to update the data from time to time. In this pipeline we opted to divide our queries by spatial units so that the pipeline can be readily scaled to the area of interest and because different contributors may add data to WQP at different lags, making it difficult to know when older data are considered "current."

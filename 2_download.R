@@ -69,7 +69,7 @@ p2_targets_list <- list(
   tar_target(
     p2_wqp_data_summary_csv,
     summarize_wqp_download(p1_wqp_inventory_summary_csv, p2_wqp_data_aoi, 
-                       "2_download/log/summary_wqp_data.csv"),
+                           "2_download/log/summary_wqp_data.csv"),
     format = "file"
   )
 
