@@ -200,6 +200,7 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #'  
 #' @param fileout character string indicating the name of the output file, 
 #' including file path and .csv extension.
+#' @param ... additional arguments to pass to `fetch_wqp_data()`
 #' 
 #' @returns
 #' Saves a .csv file containing data downloaded from the Water Quality Portal, 
@@ -207,12 +208,8 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
 #' 
 fetch_and_save_wqp_data <- function(site_counts_grouped, 
                                     char_names,
-                                    wqp_args = NULL, 
-                                    max_tries = 3, 
-                                    timeout_minutes_per_site = 5, 
-                                    sleep_on_error = 0, 
-                                    verbose = FALSE,
-                                    fileout){
+                                    fileout, 
+                                    ...){
   
   # First check that fileout matches the expected format
   if(!grepl(".csv", fileout)){
@@ -220,13 +217,7 @@ fetch_and_save_wqp_data <- function(site_counts_grouped,
   }
   
   # Download the data
-  wqp_data <- fetch_wqp_data(site_counts_grouped, 
-                             char_names,
-                             wqp_args, 
-                             max_tries,
-                             timeout_minutes_per_site,
-                             sleep_on_error,
-                             verbose)
+  wqp_data <- fetch_wqp_data(site_counts_grouped, char_names, ...)
   
   # Write data to .csv file
   readr::write_csv(wqp_data, fileout)
