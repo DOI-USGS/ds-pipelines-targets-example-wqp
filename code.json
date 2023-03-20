@@ -36,7 +36,7 @@
     }
   },
   {
-    "name": "",
+    "name": "ds-pipelines-targets-example-wqp",
     "organization": "U.S. Geological Survey",
     "description": "An example targets pipeline for pulling data from the Water Quality Portal (WQP)",
     "version": "v0.1.0",
