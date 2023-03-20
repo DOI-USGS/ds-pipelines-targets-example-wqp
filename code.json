@@ -52,7 +52,7 @@
     },
     "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/releases/tag/v0.1.0",
     "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/tags/v0.1.0.zip",
-    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/blob/main/DISCLAIMER.md",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
     "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
     "laborHours": 300,
