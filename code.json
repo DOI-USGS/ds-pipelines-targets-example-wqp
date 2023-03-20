@@ -36,9 +36,9 @@
     }
   },
   {
-    "name": "",
+    "name": "ds-pipelines-targets-example-wqp",
     "organization": "U.S. Geological Survey",
-    "description": "",
+    "description": "An example targets pipeline for pulling data from the Water Quality Portal (WQP)",
     "version": "v0.1.0",
     "status": "Ideation",
     "permissions": {
@@ -50,10 +50,10 @@
         }
       ]
     },
-    "homepageURL": "",
-    "downloadURL": "",
-    "disclaimerURL": "",
-    "repositoryURL": "",
+    "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/releases/tag/v0.1.0",
+    "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/tags/v0.1.0.zip",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
+    "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
     "laborHours": 300,
     "tags": [
