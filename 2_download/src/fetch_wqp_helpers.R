@@ -183,3 +183,46 @@ create_site_bbox <- function(sites, buffer_dist_degrees = 0.005){
   return(site_bbox)
 }
 
+
+
+#' @title Download and save WQP data
+#' 
+#' @description 
+#' Function to pull WQP data given a dataset of site ids and/or site coordinates.
+#' The downloaded data will be saved as a .csv file.
+#' 
+#' @details
+#' NOTE: THIS FUNCTION IS NOT CURRENTLY USED IN THE DATA DOWNLOAD PIPELINE.
+#' This function is a wrapper around `fetch_wqp_data` and is included as an 
+#' optional helper function. This function may be further modified to accommodate
+#' different file types (.feather, .qs, .txt, .rds). See `fetch_wqp_data` for a 
+#' complete description of function arguments.
+#'  
+#' @param fileout character string indicating the name of the output file, 
+#' including file path and .csv extension.
+#' @param ... additional arguments to pass to `fetch_wqp_data()`
+#' 
+#' @returns
+#' Saves a .csv file containing data downloaded from the Water Quality Portal, 
+#' where each row represents one data record.
+#' 
+fetch_and_save_wqp_data <- function(site_counts_grouped, 
+                                    char_names,
+                                    fileout, 
+                                    ...){
+  
+  # First check that fileout matches the expected format
+  if(!grepl(".csv", fileout)){
+    stop("Check that fileout has .csv extension")
+  }
+  
+  # Download the data
+  wqp_data <- fetch_wqp_data(site_counts_grouped, char_names, ...)
+  
+  # Write data to .csv file
+  readr::write_csv(wqp_data, fileout)
+  return(fileout)
+}
+
+
+
