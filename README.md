@@ -170,8 +170,7 @@ If the pipeline has been run previously, only the nitrate data will be impacted 
 ### Troubleshooting large-scale data pulls
 The pipeline code attempts to split large data requests into smaller groups for download (discussed further in the "Comments on pipeline design" section below). `targets` downloads the data for the individual download groups and then combines the results into a single data frame in `p2_wqp_data_aoi`. This approach may not work well in all cases, and large-scale data pulls may even result in memory allocation errors if the data frame size exceeds the memory space available to R. 
 
-An alternative pattern is to save intermediate files that contain the data downloaded for each download group in `p2_site_counts_grouped`. The target `p2_wqp_data_aoi` can be modified to use an optional helper function that saves the intermediate files instead of returning a data frame, as shown 
-below. Note that any downstream targets that are expecting a data frame would need to be updated to use the intermediate files instead. 
+An alternative pattern is to save intermediate files that contain the data downloaded for each download group in `p2_site_counts_grouped`. The target `p2_wqp_data_aoi` can be modified to use an optional helper function that saves the intermediate files instead of returning a data frame, as shown below. Note that any downstream targets that are expecting a data frame would need to be updated to use the intermediate files instead. 
 
 ```r
   tar_target(
