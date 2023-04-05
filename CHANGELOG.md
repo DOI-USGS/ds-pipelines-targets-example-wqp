@@ -1,13 +1,13 @@
-## CHANGELOG
+## Unreleased
+ * Add documentation that describes how to adapt the template pipeline for large
+ data pulls
+ * Prepare the repository for migration to DOI-USGS GitHub organization
+ * Add targets to download the site metadata
+ * Add timeout settings and retry handling to data download step to make large
+ data pulls more fault-tolerant
+ * Minor changes to make inventory step robust to empty queries (e.g. if the 
+ user-specified area of interest includes grid cells that do not contain WQP 
+ data)
 
-<b>2023-03-07</b>  
- * Add provisional documents for DOI-USGS migration
-
-<b>2022-12-19</b>  
- * Add timeout settings and retry handling to data download step to make large data pulls more fault-tolerant
-
-<b>2022-11-02</b>  
- * Minor changes to make inventory step robust to empty queries (e.g. if the user-specified area of interest includes grid cells that do not contain WQP data)
- 
-<b>2022-09-01</b>  
+## v0.1.0 
  * Initial release of WQP template pipeline
