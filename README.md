@@ -17,7 +17,7 @@ This pipeline is divided into three phases that divide the workflow:
   
 1) **Inventory** what sites and records are available in the WQP  
 2) **Download** the inventoried data  
-3) Clean or **harmonize** the downloaded data to prepare the dataset for 
+3) Clean or **harmonize*** the downloaded data to prepare the dataset for 
 further analysis  
 
 Each phase of the pipeline contains `log` and `out` directories where different 
@@ -28,6 +28,15 @@ or check these files into version control because later diffs would show which
 files were updated, making it easier to keep track of data changes over time. 
 Additional pipeline metadata can be accessed using `tar_meta()`. 
 
+*Data downloaded from the Water Quality Portal may need to be harmonized prior
+to data use due to issues related to metadata standardization or 
+quality assurance ([Read et al. 2017](https://doi.org/10.1002/2016WR019993), 
+[Sprague et al. 2017](https://doi.org/10.1016/j.watres.2016.12.024)). Data 
+harmonization decisions are often project-specific and therefore outside the 
+scope of this template pipeline. **We include illustrative examples to show how 
+harmonization steps can fit into a pipeline-based approach. However, these 
+examples are not comprehensive and should not be considered appropriate or 
+correct for a given project without further inspection**.
 
 ## Customizing the WQP pipeline
 
@@ -88,13 +97,14 @@ with targets that download and read in an external shapefile:
 ```
 
 ### Changing the parameter list
-This workflow comes with a configuration file containing common water quality 
-parameter groups and associated WQP characteristic names 
-("1_inventory/cfg_wqp_codes.yml"). This configuration file is meant to provide a
-starting place for an analysis and does not represent a definitive list of 
-characteristic names. The yml file can be edited to omit certain characteristic 
-names and include others, to change top-level parameter names, or to customize 
-parameter groupings. 
+This workflow comes with a configuration file 
+(["1_inventory/cfg/wqp_codes.yml"](https://github.com/USGS-R/ds-pipelines-targets-example-wqp/blob/main/1_inventory/cfg/wqp_codes.yml)) 
+containing common water quality parameter groups and associated WQP 
+characteristic names. This configuration file is meant to provide a starting 
+place for an analysis and does not represent a definitive list of characteristic 
+names. The yml file can be edited to omit certain characteristic names and 
+include others, to change top-level parameter names, or to customize parameter 
+groupings. 
 
 ### Changing the date range
 Customize the temporal extent of the WQP data pull by editing the variables 
@@ -326,6 +336,13 @@ R package, including HUC8 identifier (`huc`), state code (`statecode`), etc.
 There may be considerations for either approach. Querying by bounding box, as 
 we do here, will not find any sites that are missing latitude and longitude 
 parameters.
+
+## Authors
+This pipeline was developed by [Lauren Koenig](https://www.usgs.gov/staff-profiles/lauren-koenig), 
+[Lindsay Platt](https://www.usgs.gov/staff-profiles/lindsay-rc-platt),
+[Julie Padilla](https://www.usgs.gov/staff-profiles/julie-padilla), and
+[Jordan Read](https://www.usgs.gov/staff-profiles/jordan-s-read) in the 
+[USGS Water Resources Mission Area](https://www.usgs.gov/mission-areas/water-resources).
 
 ## Acknowledgements
 The data harmonization steps included in this pipeline build off of code and 
