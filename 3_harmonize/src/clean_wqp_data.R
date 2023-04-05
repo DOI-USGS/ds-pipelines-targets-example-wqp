@@ -2,11 +2,9 @@
 #' 
 #' @description 
 #' Function to harmonize WQP data in preparation for further analysis. Included
-#' in this function are steps to unite diverse characteristic names by assigning
-#' them to more commonly-used water quality parameter names; to flag missing
-#' records as well as duplicate records; and to carry out parameter-specific
-#' harmonization steps for temperature and conductivity data, including
-#' harmonizing units where possible. 
+#' in this function are steps to 1) unite diverse characteristic names by 
+#' assigning them to more commonly-used water quality parameter names, 2) flag 
+#' missing records, and 3) omit duplicated records.
 #' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record. 
@@ -19,31 +17,19 @@
 #' strings: "analysis lost", "not analyzed", "not recorded", "not collected", 
 #' and "no measurement taken", but other values may be added by passing in a new
 #' vector with all values to be treated as missing.  
-#' @param duplicate_definition character string(s) indicating which columns are
-#' used to identify a duplicate record. Duplicate records are defined as those 
-#' that share the same value for each column within `duplicate_definition`. By 
-#' default, a record will be considered duplicated if it shares the same 
-#' organization, site id, date, time, characteristic name, and sample fraction. 
-#' However, these options can be customized by passing a vector of column names 
-#' to the argument `duplicate_definition`.
-#' @param remove_duplicated_rows logical; should duplicated records be omitted
-#' from the cleaned dataset? Defaults to TRUE. 
+#' @param remove_duplicated_records logical; should records that are exactly-
+#' duplicated across all columns be omitted from the dataset? Defaults to TRUE. 
 #' 
 #' @returns 
 #' Returns a formatted and harmonized data frame containing data downloaded from 
 #' the Water Quality Portal, where each row represents a unique data record.
 #' 
-clean_wqp_data <- function(wqp_data, char_names_crosswalk,
+clean_wqp_data <- function(wqp_data, 
+                           char_names_crosswalk,
                            commenttext_missing = c('analysis lost', 'not analyzed', 
                                                    'not recorded', 'not collected', 
                                                    'no measurement taken'),
-                           duplicate_definition = c('OrganizationIdentifier',
-                                                    'MonitoringLocationIdentifier',
-                                                    'ActivityStartDate', 
-                                                    'ActivityStartTime.Time',
-                                                    'CharacteristicName', 
-                                                    'ResultSampleFractionText'),
-                           remove_duplicated_rows = TRUE){
+                           remove_duplicated_records = TRUE){
 
   # Clean data and assign flags if applicable
   wqp_data_clean <- wqp_data %>%
@@ -51,22 +37,24 @@ clean_wqp_data <- function(wqp_data, char_names_crosswalk,
     # to the groups of characteristics supplied in `char_names_crosswalk`.
     left_join(y = char_names_crosswalk, by = c("CharacteristicName" = "char_name")) %>%
     # flag true missing results
-    flag_missing_results(., commenttext_missing) %>%
-    # flag duplicate records
-    flag_duplicates(., duplicate_definition) %>%
-    {if(remove_duplicated_rows){
-      remove_duplicates(., duplicate_definition)
-    } else {.}
-    }
+    flag_missing_results(., commenttext_missing)
   
-  # Inform the user what we found for duplicated rows
-  if(remove_duplicated_rows){
-    message(sprintf(paste0("Removed %s duplicated records."), 
-                    nrow(wqp_data) - nrow(wqp_data_clean)))
+  # Check that no rows were omitted when applying QC flags
+  if(nrow(wqp_data_clean) != nrow(wqp_data)){
+    stop("Records were unintentionally removed during the data flagging step!")
+  }
+  
+  # Omit duplicate records and inform the user what we found
+  if(remove_duplicated_records){
+    wqp_data_clean <- distinct(wqp_data_clean)
+    
+    message(sprintf(paste0("Removed %s of %s records that were exactly ",
+                           "duplicated across all columns"), 
+                    (nrow(wqp_data) - nrow(wqp_data_clean)),
+                    nrow(wqp_data)))
   }
   
   return(wqp_data_clean)
-  
 }
 
 
@@ -100,9 +88,7 @@ flag_missing_results <- function(wqp_data, commenttext_missing){
     )
   
   return(wqp_data_out)
-  
 }
-
 
 
 #' @title Flag duplicated records
@@ -111,9 +97,14 @@ flag_missing_results <- function(wqp_data, commenttext_missing){
 #' Function to flag duplicated rows based on a user-supplied definition
 #' of a duplicate record. 
 #' 
+#' @details 
+#' NOTE: THIS FUNCTION IS NOT CURRENTLY USED IN THE DATA DOWNLOAD PIPELINE.
+#' This function is included as an optional helper function to flag records
+#' that are considered duplicates based on a user-supplied `duplicate_definition`.
+#' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record.
-#' @param duplicate_definition character string(s) indicating which columns are
+#' @param duplicate_definition character vector indicating which columns are
 #' used to identify a duplicate record. Duplicate records are defined as those 
 #' that share the same value for each column within `duplicate_definition`.
 #'
@@ -135,7 +126,6 @@ flag_duplicates <- function(wqp_data, duplicate_definition){
     select(-n_duplicated)
   
   return(wqp_data_out)
-  
 }
 
 
@@ -146,9 +136,14 @@ flag_duplicates <- function(wqp_data, duplicate_definition){
 #' used to drop duplicates from the dataset. Currently, we randomly retain the 
 #' first record in a set of duplicated rows and drop all others.
 #' 
+#' @details 
+#' NOTE: THIS FUNCTION IS NOT CURRENTLY USED IN THE DATA DOWNLOAD PIPELINE.
+#' This function is included as an optional helper function to omit records
+#' that are considered duplicates based on a user-supplied `duplicate_definition`.
+#' 
 #' @param wqp_data data frame containing the data downloaded from the WQP, 
 #' where each row represents a data record.
-#' @param duplicate_definition character string(s) indicating which columns are
+#' @param duplicate_definition character vector indicating which columns are
 #' used to identify a duplicate record. Duplicate records are defined as those 
 #' that share the same value for each column within `duplicate_definition`.
 #' 
@@ -175,7 +170,6 @@ remove_duplicates <- function(wqp_data, duplicate_definition){
     select(-c(n_duplicated, dup_number, flag_duplicate_drop_random))
   
   return(wqp_data_out)
-  
 }
 
 
