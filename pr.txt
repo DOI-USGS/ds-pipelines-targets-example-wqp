@@ -1,0 +1,21 @@
+Starting on September 30, 2023, USGS GitHub repositories will no longer be permitted to remain in existing organizations such as USGS-R on the public GitHub. Instead, they must be either (a) migrated to the [DOI GitHub Enterprise Cloud (DGEC)](https://github.com/DOI-USGS/), (b) migrated to the [USGS GitLab instance](https://code.usgs.gov/), or (c) archived.
+
+In order to be made public, all USGS software, whether [provisional or approved](https://www.usgs.gov/products/software/software-management/types-software-review), must contain all necessary legal and metadata assets. The purpose of this PR is to ease the transition by creating the necessary files, so that people can do the necessary migration work with less research time.
+
+The files added here are generated based on some assumptions, and without looking at the contents of any existing files. For instance, if this repo already has a `LICENSE.md`, the process which is generating this PR will not add one to the PR, but it does not make any attempt to validate the existing file. Similarly, the code is not at all clever about finding similarly-named files. For instance, if you already have a `LICENSE.txt`, this PR will try to create a `LICENSE.md` anyways!
+
+The `DISCLAIMER.md` provided here is for a provisional release. If an official release is intended, a different disclaimer template may be found [here](https://code.chs.usgs.gov/software/software-management/-/tree/main/administrative_templates)
+
+The `LICENSE.md` provided here is the most common choice, but as the owner of the repository you need to look it over and make sure that it is a good match for your repository. The [Office of the Solicitor](https://www.doi.gov/solicitor) is the only entity that can provide legal advice on this matter.
+
+ Note especially that the `code.json` created by this PR will need to be manually edited in order to be correct. In this file, the following are likely to require modification:
+* the "version" element simply chooses the repository's default branch, e.g. `main`. If there are tagged versions, they will need to be added by hand.
+* the "status" element is listed as "Development". A correct value should be chosen from these possibilities: "Ideation", "Development", "Alpha", "Beta", "Release Candidate", "Production", or "Archival"
+* the "hours" element is listed as -1. If an actual estimate of hours can be put in here, it should.
+* the "tags" element only has "USGS". Other tags may be desirable to be added.
+* the contact name is filled in with the GitHub username of the user with the most commits to the repo. It should be replaced with an actual name.
+* the contact email must be filled in manually.
+* the "metadata_last_updated" element should be filled with the date when you make the above changes.
+* the `code.json` file will contain two sections, which are intended for different branches or version releases. You may want to remove one of these, or you may want to add more.
+
+For examples of valid `code.json` files, please see [https://github.com/DOI-USGS/dataRetrieval/blob/main/code.json](https://github.com/DOI-USGS/dataRetrieval/blob/main/code.json) or [https://github.com/DOI-USGS/snow-to-flow/blob/main/code.json](https://github.com/DOI-USGS/snow-to-flow/blob/main/code.json)In addition to the necessary legal and metadata assets, all public software requires a security review. See [this guidance](https://www.usgs.gov/products/software/software-management/types-software-review) for more information. Additionally, a useful FAQ with links to details of USGS policy and the specifics of this migration is located [here](https://doimspp.sharepoint.com/sites/Software/SitePages/Frequently-Asked-Questions.aspx?xsdata=MDV8MDF8fDljYTRhZTEwNzE3MjRmYmU5YjYzMDhkYWQ5ODhkMjg3fDA2OTNiNWJhNGIxODRkN2I5MzQxZjMyZjQwMGE1NDk0fDB8MHw2MzgwNjE0Nzg4OTcyMjg2NDN8VW5rbm93bnxWR1ZoYlhOVFpXTjFjbWwwZVZObGNuWnBZMlY4ZXlKV0lqb2lNQzR3TGpBd01EQWlMQ0pRSWpvaVYybHVNeklpTENKQlRpSTZJazkwYUdWeUlpd2lWMVFpT2pFeGZRPT18MXxNVFkzTURVMU1UQTRPRGc1TnpzeE5qY3dOVFV4TURnNE9EazNPekU1T2tOSmFsVkRNV1pCUzJWeVQwVmlablk1ZWt0alVqZzBPV1YwVGt4amFEWTNPVkYzWldkbGEyTXRaMUV4UUhSb2NtVmhaQzUwWVdOMk1nPT18N2RjMTIzMWQwZDAyNDUwNzliNjMwOGRhZDk4OGQyODd8ZWYwNmJkMDY5NjNkNDk5ZGJlNWQxNWNlNWQyOGE0MmE%3D&sdata=V0ZXMG5qQUVnTUdORUpnQ2FibHVBNWtaeVdxVkE5Nk13a1dPUEcrY1RnTT0%3D).
