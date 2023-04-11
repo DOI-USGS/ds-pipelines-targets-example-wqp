@@ -39,9 +39,11 @@ clean_wqp_data <- function(wqp_data,
     # flag true missing results
     flag_missing_results(., commenttext_missing)
   
-  # Check that no rows were omitted when applying QC flags
-  if(nrow(wqp_data_clean) != nrow(wqp_data)){
-    stop("Records were unintentionally removed during the data flagging step!")
+  # Check that records weren't unintentionally added when applying QC flags
+  if(nrow(wqp_data_clean) > nrow(wqp_data)){
+    stop(paste0("Records were unintentionally duplicated during the data flagging ", 
+                "step. In the `char_names_crosswalk` table, check that each ",
+                "'char_name' corresponds with one unique 'parameter' value."))
   }
   
   # Omit duplicate records and inform the user what we found
