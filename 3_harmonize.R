@@ -21,17 +21,18 @@ p3_targets_list <- list(
   ),
   
   # Harmonize WQP data by uniting diverse characteristic names under more
-  # commonly-used water quality parameter names, flagging missing records,
-  # and flagging duplicate records. Duplicated rows are identified using 
-  # the argument `duplicate_definition`. By default, a record will be 
-  # considered duplicated if it shares the same organization, site id, date,
-  # time, characteristic name and sample fraction, although a different 
-  # vector of column names can be passed to `clean_wqp_data()` below. By 
-  # default, duplicated rows are flagged and omitted from the dataset. To 
-  # retain duplicate rows, set the argument `remove_duplicated_rows` to FALSE. 
+  # commonly-used water quality parameter names, flagging missing records, and
+  # omitting duplicate records. For the purposes of this pipeline, duplicated 
+  # records are those that are exactly duplicated across all columns. To retain 
+  # duplicate rows, set the argument `remove_duplicated_records` to FALSE.
   tar_target(
     p3_wqp_data_aoi_clean,
-    clean_wqp_data(p3_wqp_data_aoi_formatted, p1_char_names_crosswalk)
+    clean_wqp_data(wqp_data = p3_wqp_data_aoi_formatted, 
+                   char_names_crosswalk = p1_char_names_crosswalk,
+                   commenttext_missing = c('analysis lost', 'not analyzed', 
+                                           'not recorded', 'not collected', 
+                                           'no measurement taken'),
+                   remove_duplicated_records = TRUE)
   ),
   
   # Create a table that defines parameter-specific data cleaning functions.
@@ -97,11 +98,13 @@ p3_targets_list <- list(
   # steps can be added using `p3_wqp_data_aoi_clean_param` as a dependency to 
   # downstream targets.
   tar_target(
-    p3_wqp_data_aoi_clean_param_rds,{
-      outfile <- "3_harmonize/out/harmonized_wqp_data.rds"
-      saveRDS(p3_wqp_data_aoi_clean_param, outfile)
-      outfile
-    }, format = "file"
+    p3_wqp_data_aoi_clean_param_rds,
+    {
+      fileout <- "3_harmonize/out/harmonized_wqp_data.rds"
+      saveRDS(p3_wqp_data_aoi_clean_param, fileout)
+      fileout
+    }, 
+    format = "file"
   )
 
 )
