@@ -16,7 +16,7 @@
     },
     "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/",
     "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/heads/main.zip",
-    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/blob/main/DISCLAIMER.md",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
     "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
     "laborHours": 100,
@@ -33,6 +33,42 @@
     },
     "date": {
       "metadataLastUpdated": "2023-03-07"
+    }
+  },
+  {
+    "name": "ds-pipelines-targets-example-wqp",
+    "organization": "U.S. Geological Survey",
+    "description": "An example targets pipeline for pulling data from the Water Quality Portal (WQP)",
+    "version": "v0.2.0",
+    "status": "Ideation",
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "LICENSE.md"
+        }
+      ]
+    },
+    "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/releases/tag/v0.2.0",
+    "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/tags/v0.2.0.zip",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
+    "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
+    "vcs": "git",
+    "laborHours": 80,
+    "tags": [
+      "R",
+      "USGS"
+    ],
+    "languages": [
+      "R"
+    ],
+    "contact": {
+      "name": "Lauren Koenig",
+      "email": "lkoenigsnyder@usgs.gov"
+    },
+    "date": {
+      "metadataLastUpdated": "2023-04-12"
     }
   },
   {
@@ -64,11 +100,11 @@
       "R"
     ],
     "contact": {
-      "name": "",
-      "email": ""
+      "name": "Lauren Koenig",
+      "email": "lkoenigsnyder@usgs.gov"
     },
     "date": {
-      "metadataLastUpdated": "2022-10-16"
+      "metadataLastUpdated": "2022-08-24"
     }
   }
 ]
