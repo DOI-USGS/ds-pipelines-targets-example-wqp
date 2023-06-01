@@ -10,7 +10,7 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "https://github.com/USGS-R/ds-pipelines-targets-example-wqp/blob/main/LICENSE.md"
+          "URL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/LICENSE.md"
         }
       ]
     },
@@ -46,13 +46,13 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "LICENSE.md"
+          "URL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/v0.2.0/LICENSE.md"
         }
       ]
     },
     "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/releases/tag/v0.2.0",
     "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/tags/v0.2.0.zip",
-    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/v0.2.0/DISCLAIMER.md",
     "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
     "laborHours": 80,
@@ -82,13 +82,13 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "LICENSE.md"
+          "URL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/v0.1.0/LICENSE.md"
         }
       ]
     },
     "homepageURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/releases/tag/v0.1.0",
     "downloadURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/archive/refs/tags/v0.1.0.zip",
-    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/main/DISCLAIMER.md",
+    "disclaimerURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp/raw/v0.1.0/DISCLAIMER.md",
     "repositoryURL": "https://github.com/DOI-USGS/ds-pipelines-targets-example-wqp.git",
     "vcs": "git",
     "laborHours": 300,
